@@ -82,7 +82,11 @@ export default {
         },
         goBack() {
             if (this.$route.name === 'Login') {
-                this.$router.push({ name: 'My' })
+                if (sessionStorage.getItem('TK')) {
+                    this.$router.push({ name: 'My' })
+                } else {
+                    this.$router.push({ name: 'Home' })
+                }
             } else {
                 this.$router.back()
             }

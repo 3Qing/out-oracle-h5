@@ -3,6 +3,7 @@
         <div class="notice-item clearfix" v-for="(item, i) in listData" :key="i" @click="toPage(item)">
             <div class="item-left fl">
                 <p class="item-title">{{item.name}}</p>
+                <p class="ellipsis tx-2">{{item.context || '-'}}</p>
                 <div class="item-level" v-if="item.level"><span>公告级别:</span>
                     <a-rate :count="item.level" :defaultValue="item.level" disabled></a-rate>
                 </div>
@@ -26,21 +27,6 @@ export default {
         data: {
             type: Array,
             default: () => ([])
-        }
-    },
-    data() {
-        return {
-            // listData: [{
-            //     title: '重磅！Fowin量化机器人产品定位升级的公告！',
-            //     level: 4,
-            //     dateTime: '2020/01/25 16:11',
-            //     cover: require('../../assets/img/notice.jpg')
-            // }, {
-            //     title: '关于分红福利的公告',
-            //     level: 3,
-            //     dateTime: '2020/03/02 20:00',
-            //     cover: require('../../assets/img/notice.jpg')
-            // }]
         }
     },
     computed: {

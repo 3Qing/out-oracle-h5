@@ -2,8 +2,7 @@
     <div class="broadcast-box">
         <i class="iconfont icon-V"></i>
         <swiper :options="options">
-            <swiper-slide>公告1</swiper-slide>
-            <swiper-slide>公告2</swiper-slide>
+            <swiper-slide v-for="item in data" :key="item.id" @click.native="toPage(item)">{{item.name}}</swiper-slide>
         </swiper>
     </div>
 </template>
@@ -16,13 +15,22 @@ export default {
         Swiper,
         SwiperSlide
     },
+    props: {
+        data: Array
+    },
     data() {
         return {
             options: {
                 direction: 'vertical',
                 autoplay: true,
                 loop: true
-                // height: 0.48 * Number(window.document.documentElement.style.fontSize)
+            }
+        }
+    },
+    methods: {
+        toPage(item) {
+            if (item.link) {
+                window.location.href = item.link
             }
         }
     }
@@ -36,6 +44,7 @@ export default {
     overflow: hidden;
     font-size: .24rem;
     position: relative;
+    margin-top: .1rem;
     .iconfont {
         position: absolute;
         left: 0.4rem;

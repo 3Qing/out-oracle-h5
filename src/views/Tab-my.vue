@@ -1,5 +1,5 @@
 <template>
-    <a-spin :spinning="loading" :tip="tip" class="my-wrapper">
+    <a-spin :spinning="loading" :tip="tip" class="my-wrapper main-wrapper">
         <div class="user-box" @click="login">
             <div class="avatar">
                 <img src="../assets/img/banner.png" alt="头像">
@@ -46,7 +46,7 @@
             <li>
                 <span>余额：{{info.balance || 0}} ETH</span>
             </li>
-            <li>
+            <li class="text-right">
                 <a-button size="small" type="primary" @click="getPay">充值</a-button>
                 <p class="mt-10"><a-button size="small" @click="getBalance">查询</a-button></p>
             </li>
@@ -71,7 +71,7 @@ import TacticList from '@/components/transaction/list'
 import MoneyBox from '@/components/earnings/money'
 import { mapGetters } from 'vuex'
 import { FETCH_MYDATA } from '@/store'
-import { CHANGE_HOMEDATA } from '@/store'
+import tabMixin from '@/components/mixins/tab-mixin'
 export default {
     components: {
         MoneyBox,
@@ -102,37 +102,25 @@ export default {
     },
     beforeRouteEnter (to, from, next) {
         next(vm => {
+            console.log(vm.MY_DATA)
             if (vm.MY_DATA) {
-                vm.info = { ...vm.MY_DATA.info }
-                vm.listData = [ ...vm.MY_DATA.listData ]
+                vm.info = { ...(vm.MY_DATA.info || {}) }
+                vm.listData = [ ...(vm.MY_DATA.listData || []) ]
             }
             if (vm.BANNER) {
                 console.log(vm.BANNER)
                 vm.banner = [ ...vm.BANNER ][0]
             }
             vm.getData()
-            vm.getTacticList()
             vm.getBanner()
+            vm.getTacticList()
         })
     },
+    mixins: [ tabMixin ],
     computed: {
         ...mapGetters([ 'MY_DATA', 'BANNER' ])
     },
     methods: {
-        getBanner() {
-            this.$axios({
-                url: '/api/banner'
-            }).then(res => {
-                if (res.code === 0) {
-                    const data = (res.data || [])
-                    this.banner = { ...(data[0] || {}) }
-                    this.$store.dispatch({
-                        type: CHANGE_HOMEDATA,
-                        data
-                    })
-                }
-            })
-        },
         getData() {
             this.$axios({
                 url: '/api/user/info',
@@ -167,25 +155,6 @@ export default {
                     const data = res.data || {}
                     this.content = data.wallet
                     this.visible = true
-                }
-            })
-        },
-        getTacticList() {
-            this.$axios({
-                url: '/api/tactics/list',
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
-                if (res.code === 0) {
-                    const data = res.data || []
-                    this.listData = [ ...data ]
-                    this.$store.dispatch({
-                        type: FETCH_MYDATA,
-                        res: {
-                            listData: this.listData
-                        }
-                    })
                 }
             })
         },
@@ -242,7 +211,7 @@ export default {
         position: relative;
         display: flex;
         align-items: center;
-        margin: 0 .4rem;
+        // margin: 0 .4rem;
         padding: .2rem 0 .4rem;
         border-bottom: 1px solid #f8f8f8;
         .avatar {
@@ -295,6 +264,8 @@ export default {
     }
     .oper-list {
         margin-top: .6rem;
+        margin-left: -.4rem;
+        margin-right: -.4rem;
         .oper-item {
             width: 25%;
             text-align: center;
@@ -337,14 +308,10 @@ export default {
         width: 100%;
         height: 3rem;
         margin: .4rem 0;
-        padding: 0 .4rem;
         img {
             height: 100%;
             width: 100%;
         }
-    }
-    .card-box {
-        padding: 0 .4rem;
     }
 }
 </style>

@@ -36,9 +36,12 @@ export default (params) => {
     return axios(options).then(res => {
         if (res.status === 200 && res.data) {
             if (res.data.code !== 0) {
-                vm && vm.$message.warning(res.data.msg)
                 if (res.data.code === 222) {
+                    // vm && vm.$message.warning('请重新登录')
+                    sessionStorage.removeItem('TK')
                     vm.$router.push({ name: 'Login' })
+                } else {
+                    vm && vm.$message.warning(res.data.msg)
                 }
             }
         } else {

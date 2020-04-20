@@ -70,7 +70,8 @@ export default {
             tabName: '1',
             loading: false,
             tip: '',
-            taskStatus: 0
+            taskStatus: 0,
+            akey: ''
         }
     },
     beforeRouteEnter (to, from, next) {
@@ -97,7 +98,25 @@ export default {
                     if (this.info.exchange) {
                         this.getTaskDetail()
                         this.getTaskStatus()
+                        this.getApi()
                     }
+                }
+            })
+        },
+        getApi() {
+            this.$axios({
+                url: '/api/exchange/get',
+                params: {
+                    exchange: this.info.exchange
+                },
+                custom: {
+                    vm: this
+                }
+            }).then(res => {
+                if (res.code === 0) {
+                    console.log(res)
+                    const data = res.data || {}
+                    this.akey = data.access_key || ''
                 }
             })
         },
@@ -106,6 +125,9 @@ export default {
                 url: '/api/task/detail',
                 params: {
                     exchange: this.info.exchange
+                },
+                custom: {
+                    vm: this
                 }
             }).then(res => {
                 if (res.code === 0) {
@@ -115,9 +137,11 @@ export default {
         },
         getTaskStatus() {
             this.$axios({
-                url: '/api/task/status'
+                url: '/api/task/status',
+                custom: {
+                    vm: this
+                }
             }).then(res => {
-                console.log(res)
                 if (res.code === 0) {
                     this.taskStatus = 1
                 }
@@ -135,7 +159,7 @@ export default {
         },
         showDrawer() {
             this.$root.$emit('SHOW_POSITION_DRAWER', {
-                data: { ...this.form } || {},
+                data: { ...this.form, akey: this.akey, name: this.info.name } || {},
                 taskStatus: this.taskStatus
             })
         }

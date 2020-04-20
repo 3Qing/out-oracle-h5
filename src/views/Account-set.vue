@@ -32,10 +32,6 @@ export default {
                 params: { id: 2 },
                 value: '密码',
                 showIcon: true
-            }, {
-                label: '所属社区',
-                value: '蓝鲸社区',
-                showIcon: false
             }],
             loading: false,
             tip: '登出中...'

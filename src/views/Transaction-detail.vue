@@ -94,7 +94,6 @@ export default {
             const scrollHeigh = tableWrapper.scrollHeight
             const scrollTop = tableWrapper.scrollTop
             if (scrollHeigh - scrollTop - tHeight <= itemHeight * 2) {
-                console.log('加载')
                 if (!this.lock && !this.noData) {
                     this.lock = true
                     this.pageNo += 1

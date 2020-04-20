@@ -1,5 +1,5 @@
 <template>
-    <div class="earnings-wrapper">
+    <div class="earnings-wrapper main-wrapper">
         <ul class="top earning-overview">
             <li>
                 <money-box @click.native="toPage(1)"></money-box>
@@ -54,29 +54,6 @@ export default {
 .earnings-wrapper {
     height: 100%;
     background-color: #fff;
-    & > div, & > ul {
-        padding: 0 .4rem;
-        margin: 0;
-    }
-    // .top, .middle {
-    //     display: flex;
-    //     align-items: flex-end;
-    //     justify-content: space-between;
-    // }
-    // .top {
-    //     li {
-    //         width: 25%;
-    //     }
-    // }
-    // .middle {
-    //     padding-top: .6rem;
-    //     li {
-    //         width: 20%;
-    //         .money {
-    //             font-size: .32rem;
-    //         }
-    //     }
-    // }
     .ad-wrapper {
         width: 100%;
         height: 2.4rem;

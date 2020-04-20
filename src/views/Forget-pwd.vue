@@ -3,20 +3,20 @@
         <div class="logo">
             <img src="../assets/logo.jpg" alt="神谕量化">
         </div>
-        <div class="form-wrapper">
-            <div class="form-item">
+        <a-form-model class="form-wrapper" ref="form" :model="form" :rules="rules">
+            <a-form-model-item class="form-item" prop="phone">
                 <a-input placeholder="请输入手机号码" v-model="form.phone"></a-input>
-            </div>
-            <div class="form-item">
-                <a-input placeholder="请输入验证码" v-model="vcode" @blur="verifyCode"></a-input>
+            </a-form-model-item>
+            <a-form-model-item class="form-item">
+                <a-input placeholder="请输入验证码" v-model="vcode"></a-input>
                 <span :class="[vcodeDisabled && 'disabled', 'code o-link']" @click="getCode">{{count ? `重新获取${count}s` : '获取'}}</span>
-            </div>
-            <div class="form-item" v-if="verify">
+            </a-form-model-item>
+            <a-form-model-item class="form-item" prop="password">
                 <a-input-password placeholder="请输入新密码" v-model="form.password"></a-input-password>
-            </div>
-        </div>
+            </a-form-model-item>
+        </a-form-model>
         <div class="footer">
-            <a-button @click="beforeSubmit" :disabled="!verify || !this.form.password">确认</a-button>
+            <a-button @click="beforeSubmit" :disabled="disabled">确认</a-button>
             <p class="clearfix">
                 <span class="o-link" @click="toPage">登录</span>
             </p>
@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import PWD from '@/components/mixins/pwd'
 export default {
     data() {
         return {
@@ -32,16 +33,23 @@ export default {
                 phone: '',
                 password: ''
             },
-            vcode: '',
-            loading: false,
-            tip: '',
-            count: 0,
-            lock: false,
-            verify: false,
-            timer: null
+            rules: {
+                phone: [
+                    { validator: this.validatePhone, trigger: 'change' }
+                ],
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' },
+                    { min: 6, message: '密码长度至少6位', trigger: 'blur' },
+                    { validator: this.validatePass, trigger: 'change' }
+                ]
+            }
         }
     },
+    mixins: [ PWD ],
     computed: {
+        disabled() {
+            return !this.form.phone || !this.form.password || !this.vcode
+        },
         vcodeDisabled() {
             return !this.form.phone || this.lock
         }
@@ -50,79 +58,18 @@ export default {
         toPage() {
             this.$router.push({ name: 'Login' })
         },
-        getCode() {
-            if (!this.vcodeDisabled) {
-                this.loading = true
-                this.tip = '获取验证码中...'
-                this.$axios({
-                    method: 'POST',
-                    url: '/api/message',
-                    params: {
-                        phone: this.form.phone
-                    }
-                }).then(res => {
-                    this.loading = false
-                    if (res.code === 0) {
-                        this.count = 60
-                        this.lock = true
-                        this.timer = setInterval(() => {
-                            this.count--
-                            if (this.count === 0) {
-                                clearInterval(this.timer)
-                                this.count = 0
-                                this.lock = false
-                            }
-                        }, 1000)
-                    }
-                })
-            }
-        },
-        verifyCode() {
-            this.loading = true
-            this.tip = '验证中...'
-            this.$axios({
-                method: 'POST',
-                url: '/verifysms',
-                params: {
-                    phone: this.form.phone,
-                    vcode: this.vcode
-                },
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
-                this.loading = false
-                if (res.code === 0) {
-                    this.verify = true
-                    clearInterval(this.timer)
-                    this.count = 0
-                    this.lock = false
-                }
-            })
-        },
         beforeSubmit() {
-            if (this.verify && this.form.phone) {
-                const params = {
-                    phone: this.form.phone,
-                    password: this.form.password,
-                    password2: this.form.password
-                }
-                this.submit(params)
-            }
-        },
-        submit(params) {
-            this.loading = true
-            this.tip = '数据提交中...'
-            this.$axios({
-                url: '/retrieve',
-                params,
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
-                if (res.code === 0) {
-                    this.$message.success('请用新密码登录')
-                    this.$router.push({ name: 'Login' })
+            this.$refs.form.validate(valid => {
+                if (valid) {
+                    if (this.vcode) {
+                        this.verifyCode()
+                    } else {
+                        this.$message.warning('请输入验证码')
+                        return
+                    }
+                } else {
+                    this.$message.warning('请正确填写表单内容')
+                    return
                 }
             })
         }
@@ -130,6 +77,3 @@ export default {
 }
 </script>
 
-<style scoped>
-
-</style>

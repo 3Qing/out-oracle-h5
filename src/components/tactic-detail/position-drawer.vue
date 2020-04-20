@@ -4,8 +4,8 @@
         placement="bottom"
         @close="close"
         :visible="visible">
-        <div :class="[taskStatus === 0 ? 'top-tip' : 'top-tip-api']" @click="toPage">
-            {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.api}`}}
+        <div :class="[taskStatus === 0 ? 'top-tip' : 'top-tip-api ellipsis']" @click="toPage">
+            {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.name}：${data.akey}`}}
         </div>
         <div class="clearfix header">
             <span class="fl">参数设置</span>
@@ -23,7 +23,6 @@
             <div class="amount-item clearfix">
                 <span>价格间距：</span>
                 <span class="fr"><a-input-number v-model="form.per1"></a-input-number>%</span>
-                <!-- <a-input class="fr"></a-input> -->
             </div>
             <div class="amount-item clearfix">
                 <span>每笔交易占比：</span>
@@ -35,7 +34,7 @@
             <p>交易进行中，请勿手动操作API</p>
         </div>
         <div class="btn-wrapper">
-            <a-button type="primary" @click="beforeSubmit">{{btnText}}</a-button>
+            <a-button type="primary" :disabled="taskStatus === 0" @click="beforeSubmit">{{btnText}}</a-button>
         </div>
     </a-drawer>
 </template>

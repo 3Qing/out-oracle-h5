@@ -1,10 +1,7 @@
 <template>
     <div class="home-wrapper main-wrapper">
         <swiper-wrapper :data="banner"></swiper-wrapper>
-        <broadcast></broadcast>
-        <!-- <transaction class="mt-10" :opt="shortOpt"></transaction>
-        <transaction class="mt-10" :opt="longOpt"></transaction>
-        <notice-list class="mt-10" :opt="noticeOpt"></notice-list> -->
+        <broadcast :data="comps[2].data"></broadcast>
         <component v-for="(item, i) in comps" :key="i" :is="item.is" :data="item.data" class="mt-10" :opt="item.opt"></component>
     </div>
 </template>
@@ -16,6 +13,7 @@ import Transaction from '@/components/home/transaction'
 import NoticeList from '@/components/home/notice-list'
 import { CHANGE_HOMEDATA } from '@/store'
 import { mapGetters } from 'vuex'
+import tabMixin from '@/components/mixins/tab-mixin'
 export default {
     components: {
         SwiperWrapper,
@@ -25,12 +23,6 @@ export default {
     },
     data() {
         return {
-            // shortOpt: {
-            //     title: '短线交易策略'
-            // },
-            // longOpt: {
-            //     title: '长线交易策略'
-            // },
             comps: [{
                 is: Transaction,
                 type: 1,
@@ -70,6 +62,7 @@ export default {
             }]
         }
     },
+    mixins: [ tabMixin ],
     beforeRouteEnter (to, from, next) {
         next(vm => {
             if (vm.HOME_DATA) {
@@ -87,20 +80,6 @@ export default {
         ...mapGetters([ 'HOME_DATA', 'BANNER' ])
     },
     methods: {
-        getBanner() {
-            this.$axios({
-                url: '/api/banner'
-            }).then(res => {
-                console.log(res)
-                if (res.code === 0) {
-                    this.banner = res.data || []
-                    this.$store.dispatch({
-                        type: CHANGE_HOMEDATA,
-                        data: this.banner
-                    })
-                }
-            })
-        },
         getTacticList() {
             this.$axios({
                 url: '/api/tactics/list',

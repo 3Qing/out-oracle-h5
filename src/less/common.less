@@ -35,8 +35,31 @@ body {
     .o-link {
         color: #1951a3;
     }
+    .text-right {
+        text-align: right;
+    }
+    .ellipsis {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        word-break: break-all;
+        &.tx-2 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+    }
+    .data-container {
+        position: relative;
+        .no-data {
+            color: #ccc;
+            padding-top: 1rem;
+            text-align: center;
+        }
+    }
     .main-wrapper {
-        & > div {
+        & > div, & > ul {
             padding: 0 0.4rem;
             background-color: #fff;
         }
@@ -251,7 +274,6 @@ body {
         }
     }
     .earning-overview, .earning-type {
-        padding: 0 .4rem;
         margin: 0;
         display: flex;
         align-items: flex-end;
