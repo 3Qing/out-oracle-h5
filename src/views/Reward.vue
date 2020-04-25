@@ -1,41 +1,66 @@
 <template>
-    <div class="earning-detail reward-wrapper">
+    <a-spin :spinning="loading" tip="获取中" class="earning-detail reward-wrapper">
         <div class="title">奖励总览</div>
         <div class="top">
             <p>总金额</p>
             <div>
-                <span class="money">0</span>
-                <span> CNY</span>
+                <span class="money">{{total || 0}}</span>
+                <span> ETH</span>
             </div>
         </div>
-        <div class="table-wrapper">
+        <div class="list-wrapper">
             <div class="item-wrapper">
                 <div class="th">
                     <span>日期时间</span>
                     <span>金额</span>
                 </div>
-                <div class="tr">
-                    <span>2020-04-01 20:00:00</span>
-                    <span>0.00</span>
-                </div>
-            </div>
-            <div class="item-wrapper">
-                <div class="th">
-                    <span>日期时间</span>
-                    <span>金额</span>
-                </div>
-                <div class="tr">
-                    <span>2020-04-01 20:00:00</span>
-                    <!-- <span>0</span> -->
-                    <span>100.00</span>
+                <p class="no-data" v-if="!listData.length">暂无数据</p>
+                <div class="tr"  v-for="item in listData" :key="item.id">
+                    <span>{{item.created_at || '-'}}</span>
+                    <span>{{Number(item.amount).toFixed(6) || 0}}</span>
                 </div>
             </div>
         </div>
-    </div>
+    </a-spin>
 </template>
 
 <script>
-export default {}
+export default {
+    data() {
+        return {
+            listData: [],
+            total: 0,
+            loading: false
+        }
+    },
+    beforeRouteEnter (to, from, next) {
+        next(vm => {
+            vm.getData()
+        })
+    },
+    methods: {
+        getData() {
+            this.loading = true
+            this.$axios({
+                url: '/api/user/reward',
+                custom: {
+                    vm:  this
+                }
+            }).then(res => {
+                this.loading = false
+                if (res.code === 0) {
+                    const data = res.data || []
+                    let total = 0
+                    data.forEach(item => {
+                        total += Number(item.amount)
+                    })
+                    this.total = total.toFixed(2)
+                    this.listData = [ ...data ]
+                }
+            })
+        }
+    }
+}
 </script>
 
 <style lang="less">
@@ -44,11 +69,17 @@ export default {}
     & > div {
         background-color: #fff;
     }
+    .item-wrapper {
+        border-bottom: none !important;
+    }
     .th {
         color: #1951a3 !important;
         font-size: .28rem !important;
     }
     .th, .tr {
+        height: .7rem;
+        line-height: .7rem;
+        border-bottom: 1px solid #f8f8f8;
         span {
             width: 50% !important;
             &:nth-child(2) {

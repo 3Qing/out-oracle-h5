@@ -20,27 +20,42 @@
                 <div class="invite-code clearfix">
                     <span>您的邀请码</span>
                     <span class="code">{{info.invite_code}}</span>
-                    <a-button size="small" class="fr">复制</a-button>
+                    <a-button
+                        size="small"
+                        class="fr"
+                        v-clipboard:copy="info.invite_code"
+                        v-clipboard:success="copy">复制</a-button>
                 </div>
                 <a-button class="code-recom" @click="showModal">二维码邀请</a-button>
                 <ul class="reward-wrapper">
                     <li>
-                        <money-box text="奖励总览" :show-line="false" @click.native="toPage"></money-box>
+                        <money-box text="奖励总览" :value="total" unit="ETH" :show-line="false" @click.native="toPage(1)"></money-box>
                     </li>
                     <li>
-                        <money-box text="奖励明细" :show-line="false" :show-num="false"></money-box>
+                        <money-box text="邀请明细" :show-line="false" :show-num="false" @click.native="toPage(2)"></money-box>
                     </li>
                     <li>
-                        <a-button>提现</a-button>
+                        <a-button @click="show = true;">提现</a-button>
                     </li>
                 </ul>
             </div>
         </div>
         <a-modal
+            width="80%"
             v-model="visible"
             :footer="null"
             title="邀请码">
             <div id="qrCode"></div>
+        </a-modal>
+        <a-modal
+            width="80%"
+            v-model="show"
+            cancelText="取消"
+            okText="提交申请"
+            @ok="handleOk"
+            title="提现申请"
+            wrapClassName="balance-modal">
+            <a-input-number placeholder="提现金额" v-model="amount"></a-input-number>
         </a-modal>
     </div>
 </template>
@@ -48,7 +63,7 @@
 <script>
 import MoneyBox from '@/components/earnings/money'
 import { mapGetters } from 'vuex'
-import { FETCH_MYDATA } from '@/store'
+import { FETCH_MYDATA, CHANGE_RECOMDATA } from '@/store'
 import QRCode from 'qrcodejs2'
 export default {
     components: {
@@ -67,7 +82,10 @@ export default {
             info: {},
             href: '',
             visible: false,
-            qrcode: null
+            qrcode: null,
+            show: false,
+            amount: 0,
+            total: 0
         }
     },
     beforeRouteEnter (to, from, next) {
@@ -75,12 +93,17 @@ export default {
             if (vm.MY_DATA) {
                 vm.info = { ...vm.MY_DATA.info }
             }
+            console.log(vm.RECOM_DATA)
+            if (vm.RECOM_DATA) {
+                vm.total = vm.RECOM_DATA.total || 0
+            }
+            vm.getRewardData()
             vm.getData()
             vm.getHost()
         })
     },
     computed: {
-        ...mapGetters([ 'MY_DATA' ])
+        ...mapGetters([ 'MY_DATA', 'RECOM_DATA' ])
     },
     methods: {
         getData() {
@@ -102,6 +125,28 @@ export default {
                 }
             })
         },
+        getRewardData() {
+            this.$axios({
+                url: '/api/user/reward',
+                custom: {
+                    vm:  this
+                }
+            }).then(res => {
+                if (res.code === 0) {
+                    const data = res.data || []
+                    let total = 0
+                    data.forEach(item => {
+                        total += Number(item.amount)
+                    })
+                    this.total = Number(total.toFixed(2))
+                    this.$store.dispatch({
+                        type: CHANGE_RECOMDATA,
+                        field: 'total',
+                        res: this.total
+                    })
+                }
+            })
+        },
         getHost() {
             this.$axios({
                 url: '/host'
@@ -111,8 +156,12 @@ export default {
                 }
             })
         },
-        toPage() {
-            this.$router.push({ name: 'Reward' })
+        toPage(type) {
+            if (type === 1) {
+                this.$router.push({ name: 'Reward' })
+            } else {
+                this.$router.push({ name: 'RecommendDetail' })
+            }
         },
         showModal() {
             this.visible = true
@@ -128,7 +177,23 @@ export default {
                 }
             })
         },
-        handleOk() {}
+        handleOk() {
+            this.$axios({
+                method: 'POST',
+                url: '/api/withdraw/add',
+                params: {
+                    amount: this.amount || 0
+                }
+            }).then(res => {
+                if (res.code === 0) {
+                    this.$message.success('提现已申请')
+                    this.show = false
+                }
+            })
+        },
+        copy() {
+            this.$message.success('复制成功')
+        }
     }
 }
 </script>
@@ -137,6 +202,7 @@ export default {
 .recommend-wrapper {
     height: 100%;
     color: #fff;
+    overflow-y: auto;
     background-color: #1951a3;
     & > div {
         padding: 0 .4rem;
@@ -181,6 +247,7 @@ export default {
         }
     }
     .rule-overview {
+        padding-bottom: .4rem;
         .overview-wrapper {
             padding: .2rem;
             border-radius: .2rem;

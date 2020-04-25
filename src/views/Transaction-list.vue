@@ -9,7 +9,7 @@
                 <div class="oper-item fl" v-for="(item, i) in operList" :key="i" @click="clickHandler(item)">
                     <div class="icon-cover">
                         <img :src="item.icon">
-                        <span class="badge" v-if="i === 0">空闲中</span>
+                        <!-- <span class="badge" v-if="i === 0">空闲中</span> -->
                     </div>
                     <p>{{item.label}}</p>
                 </div>
@@ -35,7 +35,6 @@
 
 <script>
 import TacticList from '@/components/transaction/list'
-import { FETCH_MYDATA } from '@/store'
 export default {
     components: {
         TacticList
@@ -43,10 +42,9 @@ export default {
     data() {
         return {
             operList: [{
-                label: '我的仓位',
-                icon: require('../assets/img/icon-my-position.jpg')
-            }, {
                 label: '操作记录',
+                routeName: 'OperRecord',
+                params: { id: this.$route.params.id },
                 icon: require('../assets/img/icon-oper-record.jpg')
             }, {
                 label: 'API管理',
@@ -54,6 +52,8 @@ export default {
                 icon: require('../assets/img/icon-api-import.jpg')
             }, {
                 label: '帮助指南',
+                routeName: 'Article',
+                params: { id: 0 },
                 icon: require('../assets/img/icon-guide.jpg')
             }],
             listData: []
@@ -67,7 +67,7 @@ export default {
     methods: {
         clickHandler(item) {
             if (item.routeName) {
-                this.$router.push({ name: item.routeName })
+                this.$router.push({ name: item.routeName, params: item.params || {} })
             }
         },
         getTacticList() {
@@ -79,13 +79,13 @@ export default {
             }).then(res => {
                 if (res.code === 0) {
                     const data = res.data || []
-                    this.listData = [ ...data ]
-                    this.$store.dispatch({
-                        type: FETCH_MYDATA,
-                        res: {
-                            listData: this.listData
+                    let listData = []
+                    data.forEach(item => {
+                        if (item.type === Number(this.$route.params.id)) {
+                            listData.push(item)
                         }
                     })
+                    this.listData = [ ...listData ]
                 }
             })
         },
@@ -118,7 +118,7 @@ export default {
         .oper-list {
             margin-top: .6rem;
             .oper-item {
-                width: 25%;
+                width: 33%;
                 text-align: center;
                 .icon-cover {
                     position: relative;

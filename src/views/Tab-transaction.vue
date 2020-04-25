@@ -5,25 +5,25 @@
                 <img src="../assets/img/banner.png">
             </div>
             <div class="clearfix nav-list">
-                <router-link class="fl" :to="{ name: 'TransactionList' }">
+                <router-link class="fl" :to="{ name: 'TransactionList', params: {id: 1} }">
                     <img src="../assets/img/icon-coin.jpg">
                     <p>币本位交易</p>
                 </router-link>
-                <router-link class="fl" :to="{ name: 'TransactionList' }">
+                <router-link class="fl" :to="{ name: 'TransactionList', params: {id: 2} }">
                     <img src="../assets/img/icon-goods.jpg">
                     <p>现货交易</p>
                 </router-link>
-                <router-link class="fl" :to="{ name: 'TransactionList' }">
+                <router-link class="fl" :to="{ name: 'TransactionList', params: {id: 4} }">
                     <img src="../assets/img/icon-contract.jpg">
                     <p>合约交易</p>
                 </router-link>
-                <router-link class="fl" :to="{ name: 'TransactionList' }">
+                <router-link class="fl" :to="{ name: 'Article' }">
                     <img src="../assets/img/icon-about.jpg">
                     <p>关于交易</p>
                 </router-link>
             </div>
         </div>
-        <div class="list-wrapper mt-10">
+        <div class="tactic-list-wrapper mt-10">
             <component v-for="(item, i) in comps" :is="item.is" :key="i" :data="item.data" :opt="item.opt"></component>
         </div>
     </div>
@@ -44,7 +44,9 @@ export default {
                 type: 1,
                 opt: {
                     title: '币本位交易',
-                    more: true
+                    more: true,
+                    routeName: 'TransactionList',
+                    params: { id: 1 }
                 },
                 data: [{}]
             }, {
@@ -52,7 +54,9 @@ export default {
                 type: 2,
                 opt: {
                     title: '现货交易',
-                    more: true
+                    more: true,
+                    routeName: 'TransactionList',
+                    params: { id: 2 }
                 },
                 data: [{}]
             }, {
@@ -60,7 +64,9 @@ export default {
                 type: 3,
                 opt: {
                     title: '合约交易',
-                    more: true
+                    more: true,
+                    routeName: 'TransactionList',
+                    params: { id: 3 }
                 },
                 data: [{}]
             }]
@@ -139,7 +145,7 @@ export default {
     .mt-10 {
         margin-top: 0.2rem;
     }
-    .list-wrapper {
+    .tactic-list-wrapper {
         padding-bottom: 0.4rem;
     }
 }

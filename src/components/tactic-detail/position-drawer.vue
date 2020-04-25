@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import { Modal } from 'ant-design-vue'
+const modal = Modal
 export default {
     data() {
         return {
@@ -78,7 +80,7 @@ export default {
     },
     computed: {
         btnText() {
-            return this.taskStatus === 0 ? '添加任务' : this.taskStatus === 1 ? '开始任务' : '停止任务'
+            return this.taskStatus === 0 ? '添加任务' : this.taskStatus === 1 ? '开始任务' : '结束任务'
         }
     },
     methods: {
@@ -105,14 +107,19 @@ export default {
                 }
             }
         },
-        startTask() {
+        startOrStopTask() {
             this.$axios({
-                url: '/api/task/start',
+                url: `/api/task/${this.taskStatus === 1 ? 'start' : 'stop'}`,
                 params: {
                     task: this.data.id
+                },
+                custom: {
+                    vm: this
                 }
             }).then(res => {
-                console.log(res)
+                if (res.code === 0) {
+                    this.$message.success(`已${this.btnText}`)
+                }
             })
         },
         beforeSubmit() {
@@ -120,10 +127,18 @@ export default {
                 api: this.$route.params.id,
                 exchange: 1,
             }, this.form)
-            if (this.taskStatus === 1) {
-                this.startTask()
-            } else {
+            if (this.taskStatus === 0) {
                 this.submit(params)
+            } else {
+                modal.confirm({
+                    content: `是否${this.btnText}？`,
+                    cancelText: '取消',
+                    okText: '确定',
+                    maskClosable: true,
+                    onOk: () => {
+                        this.startOrStopTask()
+                    }
+                })
             }
         },
         submit(params) {

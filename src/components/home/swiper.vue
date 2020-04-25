@@ -9,6 +9,7 @@
         <swiper :options="options">
             <swiper-slide @click.native="toPage(item)" v-for="(item, i) in data" :key="i"><img :src="item.url"></swiper-slide>
         </swiper>
+        <div class="swiper-pagination" slot="pagination"></div>
     </div>
 </template>
 
@@ -29,7 +30,10 @@ export default {
         return {
             options: {
                 loop: true,
-                autoplay: true
+                autoplay: true,
+                pagination: {
+                    el: '.swiper-pagination'
+                }
             }
         }
     },
@@ -51,9 +55,19 @@ export default {
 .swiper-box {
     box-sizing: border-box;
     font-size: .24rem;
+    position: relative;
     img {
         width: 100%;
         height: 100%;
+    }
+    .swiper-pagination {
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        .swiper-pagination-bullet {
+            margin-right: .1rem;
+            background-color: #fff;
+        }
     }
 }
 </style>

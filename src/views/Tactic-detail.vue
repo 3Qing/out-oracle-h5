@@ -2,8 +2,8 @@
     <a-spin :spinning="loading" :tip="tip" class="tactic-detail">
         <div class="top">
             <div class="title-wrapper">
-                <p class="title"><i></i>ETH-季度合约</p>
-                <p>距离交割还有87天</p>
+                <p class="title"><i></i>{{info.name}}</p>
+                <p>{{info.short}}</p>
                 <div><span>{{info.price || 0}}</span>ETH</div>
             </div>
             <div class="rate-wrapper">
@@ -17,19 +17,19 @@
             </div>
             <div class="desc-wrapper">
                 <div class="clearfix">
-                    <div class="fl">
-                        <span>中低风险</span>
+                    <div class="fl" v-for="(item, i) in tags" :key="i">
+                        <span>{{item}}</span>
                         <!-- <span>最大回撤16.7%</span> -->
                     </div>
-                    <div class="fl">
+                    <!-- <div class="fl">
                         <span>2 ETH起</span>
-                        <!-- <span>头寸1%-20%</span> -->
-                    </div>
+                        <span>头寸1%-20%</span>
+                    </div> -->
                 </div>
             </div>
             <p class="warning-tip">以上数据来自于大数据统计仅供参考，不代表实际数据。</p>
         </div>
-        <div class="content-wrapper mt-10">
+        <div class="tabs-wrapper mt-10">
             <a-tabs :defaultActiveKey="tabName" @change="changeTab">
                 <a-tab-pane tab="策略介绍" key="1">
                     <intro-box :data="info"></intro-box>
@@ -46,6 +46,37 @@
             </div>
         </div>
         <position-drawer></position-drawer>
+        <a-modal
+            width="80%"
+            v-model="show"
+            cancelText="取消"
+            okText="充值申请"
+            @ok="handleOk"
+            title="余额"
+            wrapClassName="balance-modal">
+            <a-input-number placeholder="充值金额" v-model="amount"></a-input-number>
+        </a-modal>
+        <a-modal
+            width="80%"
+            v-model="visible"
+            cancelText="取消"
+            okText="购买"
+            @ok="handleBuy"
+            title="购买策略"
+            wrapClassName="buy-modal">
+            <div class="clearfix item-row">
+                <span class="fl">策略价格：</span>
+                <span class="fr">{{info.price || 0}} ETH</span>
+            </div>
+            <div class="clearfix item-row">
+                <span class="fl">钱包余额：</span>
+                <span class="fr">{{userInfo.balance || 0}} ETH</span>
+            </div>
+            <div class="clearfix balance item-row">
+                <span class="fl">结算：</span>
+                <span class="fr">{{(userInfo.balance || 0) - (info.price || 0)}} ETH</span>
+            </div>
+        </a-modal>
     </a-spin>
 </template>
 
@@ -65,40 +96,68 @@ export default {
     },
     data() {
         return {
+            userInfo: {},
             info: {},
             form: {},
             tabName: '1',
             loading: false,
             tip: '',
             taskStatus: 0,
-            akey: ''
+            akey: '',
+            visible: false,
+            show: false,
+            amount: 0
         }
     },
     beforeRouteEnter (to, from, next) {
         next(vm => {
-            vm.getData()
+            vm.getAllData()
         })
     },
+    computed: {
+        tags() {
+            if (this.info.tags) {
+                return this.info.tags.split('|')
+            }
+            return []
+        }
+    },
     methods: {
-        getData() {
-            this.loading = true
+        getAllData() {
+            const arr = [
+                this.$axios({
+                    url: '/api/user/info',
+                    custom: {
+                        vm: this
+                    }
+                }),
+                this.$axios({
+                    url: '/api/tactics/detail',
+                    params: {
+                        id: this.$route.params.id
+                    },
+                    custom: {
+                        vm: this
+                    }
+                })
+            ]
             this.tip = '获取策略信息中...'
-            this.$axios({
-                url: '/api/tactics/detail',
-                params: {
-                    id: this.$route.params.id
-                },
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
+            this.loading = true
+            Promise.all(arr).then(res => {
                 this.loading = false
-                if (res.code === 0) {
-                    this.info = res.data || {}
-                    if (this.info.exchange) {
-                        this.getTaskDetail()
-                        this.getTaskStatus()
-                        this.getApi()
+                if (res && res.length) {
+                    const [ res1, res2 ] = res
+                    if (res1.code === 0) {
+                        const data = res1.data || {}
+                        this.userInfo = { ...data }
+                    }
+                    if (res2.code === 0) {
+                        this.info = res2.data || {}
+                        if (this.info.exchange) {
+                            this.getTaskDetail()
+                            this.getTaskStatus()
+                            this.getApi()
+                        }
                     }
                 }
             })
@@ -158,9 +217,54 @@ export default {
             this.tabName = key
         },
         showDrawer() {
-            this.$root.$emit('SHOW_POSITION_DRAWER', {
-                data: { ...this.form, akey: this.akey, name: this.info.name } || {},
-                taskStatus: this.taskStatus
+            console.log(this.userInfo.tactics)
+            const tactic = this.userInfo.tactics.substring(1, this.userInfo.tactics.length - 1).split('|')
+            if (tactic.includes(String(this.info.id))) {
+                this.$root.$emit('SHOW_POSITION_DRAWER', {
+                    data: { ...this.form, akey: this.akey, name: this.info.name } || {},
+                    taskStatus: this.taskStatus
+                })
+            } else {
+                if (this.userInfo.balance < this.info.price) {
+                    this.$message.warning('该策略需购买，当前余额不足，请充值')
+                    this.show = true
+                } else {
+                    this.visible = true
+                }
+            }
+        },
+        handleOk() {
+            this.tip = '充值中...'
+            this.loading = true
+            this.$axios({
+                url: '',
+                custom: {
+                    vm: this
+                }
+            }).then(res => {
+                if (res.code === 0) {
+                    this.show = false
+                    this.$message.success('充值成功，请重新购买策略')
+                }
+            })
+        },
+        handleBuy() {
+            this.tip = '购买处理中...'
+            this.loading = true
+            this.$axios({
+                url: '/api/user/pay',
+                params: {
+                    task: this.info.id
+                },
+                custom: {
+                    vm: this
+                }
+            }).then(res => {
+                this.loading = false
+                if (res.code === 0) {
+                    this.visible = false
+                    this.$message.success('购买成功')
+                }
             })
         }
     }
@@ -171,8 +275,8 @@ export default {
 .tactic-detail {
     position: relative;
     .top {
-        padding: 0.2rem 0.3rem;
         background-color: #fff;
+        padding-bottom: .2rem !important;
         .title-wrapper {
             padding-bottom: .06rem;
             border-bottom: 1px solid #f8f8f8;
@@ -265,43 +369,6 @@ export default {
             background-color: #fff6ef;
         }
     }
-    .content-wrapper {
-        padding: 0 !important;
-        height: 100%;
-        background-color: #fff;
-        .ant-tabs-bar {
-            margin-bottom: 0.4rem;
-            .ant-tabs-nav {
-                width: 100%;
-                .ant-tabs-tab {
-                    margin: 0;
-                    padding: 0.2rem 0;
-                    text-align: center;
-                    width: calc(100% / 3);
-                }
-                .ant-tabs-ink-bar {
-                    width: 0.6rem !important;
-                    margin-left: .95rem;
-                }
-            }
-        }
-        .pane-wrapper {
-            padding: 0 .3rem .3rem;
-            height: 100%;
-            .wrapper-title {
-                color: #1d262d;
-                padding-bottom: .2rem;
-            }
-            .content {
-                color: #999;
-                font-size: .24rem;
-                padding-bottom: .6rem;
-            }
-            .card-box {
-                padding-top: 0;
-            }
-        }
-    }
     .bottom {
         position: fixed;
         left: 0;
@@ -317,6 +384,15 @@ export default {
             border-color: #19458e;
             background-color: #19458e;
         }
+    }
+}
+.buy-modal {
+    .item-row {
+        height: .7rem;
+        line-height: .7rem;
+    }
+    .balance {
+        border-top: 1px solid #f8f8f8;
     }
 }
 </style>

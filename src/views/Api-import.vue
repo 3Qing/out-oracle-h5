@@ -38,6 +38,9 @@
 </template>
 
 <script>
+import { Modal } from 'ant-design-vue'
+const modal = Modal
+
 export default {
     data() {
         return {
@@ -118,6 +121,7 @@ export default {
         },
         getFee() {
             this.$axios({
+                method: 'POST',
                 url: '/api/exchange/fee',
                 params: {
                     exchange: this.$route.params.id
@@ -140,10 +144,19 @@ export default {
                 params = Object.assign(params, this.form, {
                     id: this.info.id
                 })
+                modal.confirm({
+                    content: `是否修改API？`,
+                    cancelText: '取消',
+                    okText: '确定',
+                    maskClosable: true,
+                    onOk: () => {
+                        this.submit(params, this.edit)
+                    }
+                })
             } else {
-                    params = Object.assign(params, this.form)
+                params = Object.assign(params, this.form)
+                this.submit(params, this.edit)
             }
-            this.submit(params, this.edit)
         },
         submit(params, edit) {
             this.loading = true

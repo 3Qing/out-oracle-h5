@@ -9,7 +9,8 @@ import TransactionList from '@/views/Transaction-list'
 import Earnings from '@/views/Tab-earnings'
 import TransactionDetail from '@/views/Transaction-detail'
 import NoticeList from '@/views/Notice-list'
-import Recommend from '@/views/Recommend'
+import Recommend from '@/views/Tab-recommend'
+import RecommendDetail from '@/views/Recommend-detail'
 import Reward from '@/views/Reward'
 import My from '@/views/Tab-my'
 import AccountSet from '@/views/Account-set'
@@ -19,6 +20,8 @@ import ForgetPwd from '@/views/Forget-pwd'
 import Set from '@/views/Set'
 import SetDetail from '@/views/Set-detail'
 import EarningOverview from '@/views/Earning-overview'
+import Article from '@/views/Article'
+import OperRecord from '@/views/Oper-record'
 
 Vue.use(VueRouter)
 
@@ -38,7 +41,7 @@ const routes = [
         },
         component: Transaction
     }, {
-        path: '/transactionlist',
+        path: '/transactionlist/:id',
         name: 'TransactionList',
         component: TransactionList
     }, {
@@ -71,6 +74,10 @@ const routes = [
             title: '推荐'
         },
         component: Recommend
+    }, {
+        path: '/recommendetail',
+        name: 'RecommendDetail',
+        component: RecommendDetail
     }, {
         path: '/reward',
         name: 'Reward',
@@ -115,9 +122,17 @@ const routes = [
         name: 'EarningDetail',
         component: TransactionDetail
     }, {
-        path: '/earningoverview',
+        path: '/earningoverview/:id',
         name: 'EarningOverview',
         component: EarningOverview
+    }, {
+        path: '/article/:id',
+        name: 'Article',
+        component: Article
+    }, {
+        path: '/operecord/:id',
+        name: 'OperRecord',
+        component: OperRecord
     }
 ]
 

@@ -2,7 +2,7 @@
     <div class="earnings-wrapper main-wrapper">
         <ul class="top earning-overview">
             <li>
-                <money-box @click.native="toPage(1)"></money-box>
+                <money-box :value="incomeData.total" @click.native="toPage(1, 0)"></money-box>
             </li>
             <li>
                 <money-box text="交易明细" :show-num="false" @click.native="toPage(2)"></money-box>
@@ -10,20 +10,20 @@
         </ul>
         <ul class="middle earning-type">
             <li>
-                <money-box text="昨日收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="今日收益" :value="incomeData.today" :show-line="false" :show-arrow="false"></money-box>
             </li>
             <li>
-                <money-box text="30天收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="昨日收益" :value="incomeData.yesterday" :show-line="false" :show-arrow="false"></money-box>
             </li>
             <li>
-                <money-box text="年化收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="年化收益" unit="%" :value="incomeData.years" :show-line="false" :show-arrow="false"></money-box>
             </li>
         </ul>
         <div class="ad-wrapper mt-10">
             <img src="../assets/img/banner.png" alt="广告">
         </div>
-        <div class="mt-10 list-wrapper">
-            <tactic-list></tactic-list>
+        <div class="data-container">
+            <tactic-list :data="listData"></tactic-list>
         </div>
     </div>
 </template>
@@ -31,19 +31,58 @@
 <script>
 import MoneyBox from '@/components/earnings/money'
 import TacticList from '@/components/transaction/list'
+import TabMixin from '@/components/mixins/tab-mixin'
+import { CHANGE_EARNDATA } from '@/store'
+import { mapGetters } from 'vuex'
 export default {
     components: {
         MoneyBox,
         TacticList
     },
+    data() {
+        return {
+            data: {
+                total: 0,
+                listData: []
+            }
+        }
+    },
+    mixins: [ TabMixin ],
+    beforeRouteEnter (to, from, next) {
+        next(vm => {
+            if (vm.EARN_DATA) {
+                if (vm.EARN_DATA.incomeData) {
+                    vm.incomeData = vm.EARN_DATA.incomeData
+                }
+                if (vm.EARN_DATA.listData) {
+                    vm.listData = vm.EARN_DATA.listData
+                }
+            }
+            vm.getIncomeData(() => {
+                vm.$store.dispatch({
+                    type: CHANGE_EARNDATA,
+                    field: 'incomeData',
+                    res: vm.incomeData
+                })
+            })
+            vm.getTacticList(() => {
+                vm.$store.dispatch({
+                    type: CHANGE_EARNDATA,
+                    field: 'listData',
+                    res: vm.listData
+                })
+            })
+        })
+    },
+    computed: {
+        ...mapGetters(['EARN_DATA'])
+    },
     methods: {
-        toPage(type) {
+        toPage(type, id) {
             if (type === 1) {
-                this.$router.push({ name: 'EarningOverview' })
-            } else if (type === 2) {
-                this.$router.push({ name: 'TransactionDetail' })
+                this.$router.push({ name: 'EarningOverview', params: { id } })
             } else {
-                this.$router.push({ name: 'EarningDetail' })
+                this.$router.push({ name: 'TransactionDetail' })
             }
         }
     }
@@ -63,8 +102,8 @@ export default {
             height: 100%;
         }
     }
-    .list-wrapper {
-        padding-top: 0.1rem;
+    .middle {
+        margin-top: .4rem;
     }
 }
 </style>

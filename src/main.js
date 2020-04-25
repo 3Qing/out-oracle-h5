@@ -6,6 +6,7 @@ import store from './store'
 import './assets/icon/iconfont.css'
 import './less/common.less'
 import axios from './utils/axios'
+import VueClipboard from 'vue-clipboard2'
 
 import {
   Button,
@@ -21,12 +22,15 @@ import {
   Select,
   DatePicker,
   FormModel,
-  LocaleProvider
+  LocaleProvider,
+  Progress
 } from 'ant-design-vue'
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
 Vue.prototype.$message = Message
+
+Vue.use(VueClipboard)
 
 Vue.use(Button)
 Vue.use(Icon)
@@ -42,6 +46,7 @@ Vue.use(Select)
 Vue.use(DatePicker)
 Vue.use(LocaleProvider)
 Vue.use(FormModel)
+Vue.use(Progress)
 
 new Vue({
   router,

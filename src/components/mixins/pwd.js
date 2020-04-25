@@ -96,7 +96,7 @@ export default {
                     this.lock = false
                     let params
                     if (this.$route.name === 'Register') {
-                        params = { ...this.form }
+                        params = { ...this.form, vcode: this.vcode }
                     } else {
                         params = {
                             phone: this.form.phone,

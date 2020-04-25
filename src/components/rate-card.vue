@@ -10,6 +10,7 @@
             <p class="ratio"><span>{{data.annual || '0.00'}}</span>%</p>
             <p class="time"><span>近一月年化率</span></p>
         </div>
+        <span v-if="data.status === 0" class="badge">即将上线</span>
     </div>
 </template>
 

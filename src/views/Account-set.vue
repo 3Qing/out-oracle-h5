@@ -13,19 +13,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
     data() {
         return {
             listData: [{
                 label: '头像',
                 avatar: require('../assets/img/banner.png'),
-                showIcon: true
-            }, {
-                label: '昵称',
-                routeName: 'SetDetail',
-                params: { id: 1 },
-                value: '昵称',
-                showIcon: true,
+                showIcon: false
             }, {
                 label: '密码',
                 routeName: 'SetDetail',
@@ -36,6 +31,20 @@ export default {
             loading: false,
             tip: '登出中...'
         }
+    },
+    beforeRouteEnter (to, from, next) {
+        next(vm => {
+            if (vm.MY_DATA) {
+                if (vm.MY_DATA.info && vm.MY_DATA.info.avatar) {
+                    const listData = [ ...vm.listData ]
+                    listData[0].avatar = vm.MY_DATA.info.avatar
+                    vm.listData = [ ...listData ]
+                }
+            }
+        })
+    },
+    computed: {
+        ...mapGetters([ 'MY_DATA' ])
     },
     methods: {
         logout() {

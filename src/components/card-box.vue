@@ -23,7 +23,7 @@ export default {
     },
     methods: {
         toPage() {
-            this.$router.push({ name: this.opt.routeName })
+            this.$router.push({ name: this.opt.routeName, params: this.opt.params || {} })
         }
     }
 }

@@ -7,7 +7,7 @@
                 <span> &#8776; 0.00 BTC</span>
             </div>
         </div>
-        <div class="filter-bar">
+        <div class="list-filter-bar">
             <div class="filter-select">
                 <a-select v-model="filter.type" placeholder="全部" @change="changeHandle" allowClear>
                     <a-select-option v-for="item in limits" :value="item.value" :key="item.value">{{item.label}}</a-select-option>
@@ -24,7 +24,7 @@
                 </a-locale-provider>
             </div>
         </div>
-        <div class="table-wrapper mt-10" ref="tableWrapper">
+        <div class="list-wrapper mt-10" ref="tableWrapper">
             <p v-if="listData.length === 0" class="no-data">暂无数据</p>
             <div class="item-wrapper" v-for="(item, i) in listData" :key="i">
                 <div class="item-header">
@@ -173,28 +173,7 @@ export default {
         font-weight: bold;
         padding: .2rem .4rem !important;
     }
-    .filter-bar {
-        display: flex;
-        padding: 0 .4rem;
-        justify-content: space-between;
-        & > div {
-            width: 25%;
-            &.filter-date {
-                width: 40%;
-            }
-            .ant-select {
-                width: 100%;
-            }
-            .ant-select-selection, .ant-input {
-                border: none;
-                &:focus, &:active, &:hover {
-                    outline: none;
-                    box-shadow: none;
-                }
-            }
-        }
-    }
-    .table-wrapper {
+    .list-wrapper {
         padding: 0 .4rem .3rem;
         height: calc(100% - 0.32rem - 0.64rem - 0.2rem - 0.5rem - 4px) !important;
         overflow-y: auto;

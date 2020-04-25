@@ -3,14 +3,14 @@
         <div class="notice-item clearfix" v-for="(item, i) in listData" :key="i" @click="toPage(item)">
             <div class="item-left fl">
                 <p class="item-title">{{item.name}}</p>
-                <p class="ellipsis tx-2">{{item.context || '-'}}</p>
+                <p class="ellipsis tx-2" v-html="item.context || '-'"></p>
                 <div class="item-level" v-if="item.level"><span>公告级别:</span>
                     <a-rate :count="item.level" :defaultValue="item.level" disabled></a-rate>
                 </div>
                 <div class="item-time" v-if="item.created_at"><span>最新热点</span><span>{{item.created_at}}</span></div>
             </div>
             <div class="item-right fr">
-                <img :src="item.cover" v-if="item.cover">
+                <img :src="item.pic" v-if="item.pic">
             </div>
         </div>
     </card-box>

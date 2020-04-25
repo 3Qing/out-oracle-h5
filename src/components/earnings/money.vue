@@ -1,7 +1,9 @@
 <template>
     <div class="money-box">
-        <p v-if="showNum" class="money">0</p>
-        <p class="money-desc clearfix">{{text}}<a-icon class="fr" type="right" /></p>
+        <p v-if="showNum" class="money">
+            {{value}}<span v-if="unit">{{unit}}</span>
+        </p>
+        <p class="money-desc clearfix">{{text}}<a-icon v-if="showArrow" class="fr" type="right" /></p>
         <div class="line-bar" v-if="showLine"></div>
     </div>
 </template>
@@ -17,9 +19,21 @@ export default {
             type: Boolean,
             default: true
         },
+        showArrow: {
+            type: Boolean,
+            default: true
+        },
         text: {
             type: String,
             default: '收益总览'
+        },
+        value: {
+            type: Number,
+            default: 0
+        },
+        unit: {
+            type: String,
+            default: 'USDT'
         }
     }
 }
@@ -30,6 +44,10 @@ export default {
     .money {
         color: #00233d;
         font-size: .56rem;
+        span {
+            margin-left: .1rem;
+            font-size: .24rem;
+        }
     }
     .money-desc {
         color: #000;

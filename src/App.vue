@@ -45,11 +45,13 @@ export default {
             }, {
                 label: '推荐',
                 icon: 'icon-icon_tuijiannor',
-                routeName: 'Recommend'
+                routeName: 'Recommend',
+                isLogin: true
             }, {
                 label: '我的',
                 icon: 'icon-gerenzhongxin',
-                routeName: 'My'
+                routeName: 'My',
+                isLogin: true
             }]
         }
     },
@@ -74,6 +76,12 @@ export default {
     },
     methods: {
         toPage(item) {
+            if (item.isLogin) {
+                if (!sessionStorage.getItem('TK')) {
+                    this.$router.push({ name: 'Login' })
+                    return
+                }
+            }
             this.curNav = item
             this.$router.push({ name: item.routeName })
         },
@@ -108,7 +116,7 @@ export default {
         position: relative;
         background-color: #fff;
         img {
-            width: 50%;
+            height: 100%;
             margin-left: 50%;
             transform: translateX(-50%);
         }

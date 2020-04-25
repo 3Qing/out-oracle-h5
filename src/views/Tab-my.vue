@@ -2,7 +2,7 @@
     <a-spin :spinning="loading" :tip="tip" class="my-wrapper main-wrapper">
         <div class="user-box" @click="login">
             <div class="avatar">
-                <img src="../assets/img/banner.png" alt="头像">
+                <img :src="info.avatar || require('../assets/img/banner.png')" alt="头像">
             </div>
             <div class="user-wrapper">
                 <div class="top">
@@ -20,18 +20,18 @@
         </div>
         <ul class="earning-overview">
             <li>
-                <money-box @click.native="toPage(1)"></money-box>
+                <money-box :value="incomeData.total" @click.native="toPage(1, 0)"></money-box>
             </li>
         </ul>
         <ul class="earning-type">
             <li>
-                <money-box text="昨日收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="今日收益" :value="incomeData.today" :show-line="false" :show-arrow="false"></money-box>
             </li>
             <li>
-                <money-box text="30天收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="昨日收益" :value="incomeData.yesterday" :show-line="false" :show-arrow="false"></money-box>
             </li>
             <li>
-                <money-box text="年化收益" :show-line="false" @click.native="toPage"></money-box>
+                <money-box text="年化收益" unit="%" :value="incomeData.years" :show-line="false" :show-arrow="false"></money-box>
             </li>
         </ul>
         <div class="oper-list clearfix">
@@ -48,7 +48,7 @@
             </li>
             <li class="text-right">
                 <a-button size="small" type="primary" @click="getPay">充值</a-button>
-                <p class="mt-10"><a-button size="small" @click="getBalance">查询</a-button></p>
+                <!-- <p class="mt-10"><a-button size="small" @click="getBalance">查询</a-button></p> -->
             </li>
         </ul>
         <div class="ad-wrapper">
@@ -56,6 +56,7 @@
         </div>
         <tactic-list :data="listData"></tactic-list>
         <a-modal
+            width="80%"
             v-model="visible"
             @ok="handleOk"
             cancelText="取消"
@@ -102,18 +103,17 @@ export default {
     },
     beforeRouteEnter (to, from, next) {
         next(vm => {
-            console.log(vm.MY_DATA)
             if (vm.MY_DATA) {
                 vm.info = { ...(vm.MY_DATA.info || {}) }
                 vm.listData = [ ...(vm.MY_DATA.listData || []) ]
             }
             if (vm.BANNER) {
-                console.log(vm.BANNER)
                 vm.banner = [ ...vm.BANNER ][0]
             }
             vm.getData()
             vm.getBanner()
             vm.getTacticList()
+            vm.getIncomeData()
         })
     },
     mixins: [ tabMixin ],
@@ -176,9 +176,9 @@ export default {
                 }
             })
         },
-        toPage(type) {
+        toPage(type, id) {
             if (type === 1) {
-                this.$router.push({ name: 'EarningOverview' })
+                this.$router.push({ name: 'EarningOverview', params: { id } })
             } else if (type === 2) {
                 this.$router.push({ name: 'ApiManager' })
             } else {
@@ -302,6 +302,9 @@ export default {
         .ant-btn-primary {
             border-color: @primary-color;
             background-color: @primary-color;
+        }
+        li {
+            width: 50% !important;
         }
     }
     .ad-wrapper {

@@ -10,6 +10,10 @@ export const SET_BANNER = 'SET_BANNER'
 export const SET_HOMEDATA = 'SET_HOMEDATA'
 export const CHANGE_TRANDATA = 'CHANGE_TRANDATA'
 export const SET_TRANDATA = 'SET_TRANDATA'
+export const CHANGE_EARNDATA = 'CHANGE_EARNDATA'
+export const SET_EARNDATA = 'SET_EARNDATA'
+export const CHANGE_RECOMDATA = 'CHANGE_RECOMDATA'
+export const SET_RECOMDATA = 'SET_RECOMDATA'
 
 Vue.use(Vuex)
 
@@ -18,7 +22,9 @@ const state = {
     myData: null,
     homeData: null,
     banner: null,
-    tranData: null
+    tranData: null,
+    earnData: null,
+    recomData: null
 }
 
 export default new Vuex.Store({
@@ -44,6 +50,29 @@ export default new Vuex.Store({
         [SET_TRANDATA](state, res) {
             state.tranData = res
         },
+        [SET_EARNDATA](state, data) {
+            if (state.earnData) {
+                state.earnData[data.field] = data.res
+            } else {
+                let obj = {}
+                obj[data.field] = data.res
+                state.earnData = obj
+            }
+        },
+        [SET_RECOMDATA](state, data) {
+            if (state.recomData) {
+                state.recomData[data.field] = data.res
+            } else {
+                let obj = {}
+                obj[data.field] = data.res
+                state.recomData = obj
+            }
+            // if (state.recomData) {
+            //     state.recomData = Object.assign(state.recomData, data.res)
+            // } else {
+            //     state.recomData = data.res
+            // }
+        },
     },
     actions: {
         // 获取用户信息
@@ -62,6 +91,12 @@ export default new Vuex.Store({
         },
         [CHANGE_TRANDATA]({ commit }, payload) {
             commit(SET_TRANDATA, payload.res)
+        },
+        [CHANGE_EARNDATA]({ commit }, payload) {
+            commit(SET_EARNDATA, payload)
+        },
+        [CHANGE_RECOMDATA]({ commit }, payload) {
+            commit(SET_RECOMDATA, payload)
         }
     },
     getters: (state => {
