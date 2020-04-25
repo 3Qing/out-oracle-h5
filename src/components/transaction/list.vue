@@ -9,11 +9,8 @@
             <div class="right">
                 <p class="right-title">{{item.name || '标题'}}</p>
                 <div class="right-desc">
-                    <i class="icon"></i>
+                    <i class="icon" v-if="item.short"></i>
                     <span>{{item.short || ''}}</span>
-                    <!-- <span>火币</span>
-                    <span>{{item.price || 0}} U起</span>
-                    <span> 头寸0.5%~10%</span> -->
                 </div>
                 <div class="tag-list tag-type-border" v-if="item.tag">
                     <span v-for="(cell, i) in formatTag(item)" :key="i">{{cell}}</span>

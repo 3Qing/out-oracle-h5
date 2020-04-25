@@ -55,7 +55,8 @@
             @ok="handleOk"
             title="提现申请"
             wrapClassName="balance-modal">
-            <a-input-number placeholder="提现金额" v-model="amount"></a-input-number>
+            <p>总奖励：{{total}} ETH</p>
+            <a-input-number class="mt-10" placeholder="提现金额" :max="total" v-model="amount"></a-input-number>
         </a-modal>
     </div>
 </template>
@@ -93,7 +94,6 @@ export default {
             if (vm.MY_DATA) {
                 vm.info = { ...vm.MY_DATA.info }
             }
-            console.log(vm.RECOM_DATA)
             if (vm.RECOM_DATA) {
                 vm.total = vm.RECOM_DATA.total || 0
             }

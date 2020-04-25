@@ -4,6 +4,7 @@
             <span class="header-left" @click="goBack" v-if="!navName.includes($route.name)"><a-icon type="arrow-left" /></span>
             <img src="./assets/logo.jpg" v-if="hiddenLogo" />
             <a-icon class="header-right" type="setting" v-if="$route.name === 'My'" @click.native="toView"/>
+            <a-icon class="header-right" type="share-alt" v-if="$route.name === 'Article'" @click.native="showShare" />
         </div>
         <main :class="[navName.includes($route.name) || 'full-page']">
             <router-view></router-view>
@@ -19,11 +20,13 @@
                 <p>{{item.label}}</p>
             </div>
         </div>
+        <share-modal :visible="visible" @close="visible = false"></share-modal>
     </div>
 </template>
 
 <script>
 import { CHANGE_LOGIN } from '@/store'
+import ShareModal from '@/components/share/share-modal'
 export default {
     data() {
         return {
@@ -41,7 +44,8 @@ export default {
             }, {
                 label: '收益',
                 icon: 'icon-jiaoyi',
-                routeName: 'Earnings'
+                routeName: 'Earnings',
+                isLogin: true
             }, {
                 label: '推荐',
                 icon: 'icon-icon_tuijiannor',
@@ -52,8 +56,12 @@ export default {
                 icon: 'icon-gerenzhongxin',
                 routeName: 'My',
                 isLogin: true
-            }]
+            }],
+            visible: false
         }
+    },
+    components: {
+        ShareModal
     },
     computed: {
         navName() {
@@ -98,6 +106,9 @@ export default {
             } else {
                 this.$router.back()
             }
+        },
+        showShare() {
+            this.visible = true
         }
     }
 }

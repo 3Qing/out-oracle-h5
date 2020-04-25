@@ -1,6 +1,6 @@
 <template>
     <div class="money-box">
-        <p v-if="showNum" class="money">
+        <p v-if="showNum" class="money ellipsis">
             {{value}}<span v-if="unit">{{unit}}</span>
         </p>
         <p class="money-desc clearfix">{{text}}<a-icon v-if="showArrow" class="fr" type="right" /></p>

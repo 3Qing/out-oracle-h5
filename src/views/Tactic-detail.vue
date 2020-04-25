@@ -2,8 +2,8 @@
     <a-spin :spinning="loading" :tip="tip" class="tactic-detail">
         <div class="top">
             <div class="title-wrapper">
-                <p class="title"><i></i>{{info.name}}</p>
-                <p>{{info.short}}</p>
+                <p class="title" :class="[info.name && 'title-icon']"><i v-if="info.name"></i>{{info.name || '标题'}}</p>
+                <p>{{info.short || '短标题'}}</p>
                 <div><span>{{info.price || 0}}</span>ETH</div>
             </div>
             <div class="rate-wrapper">
@@ -19,12 +19,7 @@
                 <div class="clearfix">
                     <div class="fl" v-for="(item, i) in tags" :key="i">
                         <span>{{item}}</span>
-                        <!-- <span>最大回撤16.7%</span> -->
                     </div>
-                    <!-- <div class="fl">
-                        <span>2 ETH起</span>
-                        <span>头寸1%-20%</span>
-                    </div> -->
                 </div>
             </div>
             <p class="warning-tip">以上数据来自于大数据统计仅供参考，不代表实际数据。</p>
@@ -32,7 +27,7 @@
         <div class="tabs-wrapper mt-10">
             <a-tabs :defaultActiveKey="tabName" @change="changeTab">
                 <a-tab-pane tab="策略介绍" key="1">
-                    <intro-box :data="info"></intro-box>
+                    <intro-box :data="info" @show="showDrawer"></intro-box>
                 </a-tab-pane>
                 <a-tab-pane tab="性能分析" key="2">
                     <analysis-box :data="info"></analysis-box>
@@ -41,21 +36,8 @@
                     <about-box :data="info"></about-box>
                 </a-tab-pane>
             </a-tabs>
-            <div class="bottom">
-                <a-button type="primary" @click="showDrawer">开启合约量化</a-button>
-            </div>
         </div>
         <position-drawer></position-drawer>
-        <a-modal
-            width="80%"
-            v-model="show"
-            cancelText="取消"
-            okText="充值申请"
-            @ok="handleOk"
-            title="余额"
-            wrapClassName="balance-modal">
-            <a-input-number placeholder="充值金额" v-model="amount"></a-input-number>
-        </a-modal>
         <a-modal
             width="80%"
             v-model="visible"
@@ -105,7 +87,6 @@ export default {
             taskStatus: 0,
             akey: '',
             visible: false,
-            show: false,
             amount: 0
         }
     },
@@ -216,8 +197,8 @@ export default {
         changeTab(key) {
             this.tabName = key
         },
+        // 开启合约量化
         showDrawer() {
-            console.log(this.userInfo.tactics)
             const tactic = this.userInfo.tactics.substring(1, this.userInfo.tactics.length - 1).split('|')
             if (tactic.includes(String(this.info.id))) {
                 this.$root.$emit('SHOW_POSITION_DRAWER', {
@@ -226,28 +207,22 @@ export default {
                 })
             } else {
                 if (this.userInfo.balance < this.info.price) {
-                    this.$message.warning('该策略需购买，当前余额不足，请充值')
-                    this.show = true
+                    this.$message.warning('当前余额不足，请先充值')
+                    if (sessionStorage.getItem('TK')) {
+                        // 弹出充值 弹窗
+                        const timer = setTimeout(() => {
+                            clearTimeout(timer)
+                            this.$router.push({ name: 'My', query: { ob: true } })
+                        }, 1000)
+                    } else {
+                        this.$rotuer.push({ name: 'Login' })
+                    }
                 } else {
                     this.visible = true
                 }
             }
         },
-        handleOk() {
-            this.tip = '充值中...'
-            this.loading = true
-            this.$axios({
-                url: '',
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
-                if (res.code === 0) {
-                    this.show = false
-                    this.$message.success('充值成功，请重新购买策略')
-                }
-            })
-        },
+        // 购买策略
         handleBuy() {
             this.tip = '购买处理中...'
             this.loading = true
@@ -285,7 +260,9 @@ export default {
                 color: #00152a;
                 font-weight: 600;
                 position: relative;
-                padding-left: .4rem;
+                &.title-icon {
+                    padding-left: .4rem;
+                }
                 i {
                     position: absolute;
                     left: 0;

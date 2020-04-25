@@ -55,6 +55,20 @@
       "unicode_decimal": 59131
     },
     {
+      "icon_id": "986222",
+      "name": "朋友圈",
+      "font_class": "pengyouquan-copy",
+      "unicode": "e659",
+      "unicode_decimal": 58969
+    },
+    {
+      "icon_id": "1330569",
+      "name": "微信",
+      "font_class": "weixin",
+      "unicode": "e73b",
+      "unicode_decimal": 59195
+    },
+    {
       "icon_id": "2757044",
       "name": "个人中心",
       "font_class": "gerenzhongxin",

@@ -18,7 +18,7 @@
                 <a-icon type="right"></a-icon>
             </div>
         </div>
-        <ul class="earning-overview">
+        <ul class="earning-overview money-wrapper">
             <li>
                 <money-box :value="incomeData.total" @click.native="toPage(1, 0)"></money-box>
             </li>
@@ -44,17 +44,18 @@
         </div>
         <ul class="earning-overview" style="margin-top: .3rem">
             <li>
-                <span>余额：{{info.balance || 0}} ETH</span>
+                <span>资金：{{info.balance || 0}} ETH</span>
             </li>
             <li class="text-right">
                 <a-button size="small" type="primary" @click="getPay">充值</a-button>
-                <!-- <p class="mt-10"><a-button size="small" @click="getBalance">查询</a-button></p> -->
             </li>
         </ul>
         <div class="ad-wrapper">
             <img :src="banner.url">
         </div>
-        <tactic-list :data="listData"></tactic-list>
+        <div class="list-wrapper">
+            <tactic-list :data="listData"></tactic-list>
+        </div>
         <a-modal
             width="80%"
             v-model="visible"
@@ -63,6 +64,28 @@
             okText="确定"
             :title="title">
             <p>{{this.content}}</p>
+        </a-modal>
+        <a-modal 
+            width="80%"
+            v-model="show"
+            wrapClassName="wallet-modal"
+            :closable="false"
+            :footer="null">
+            <p class="ellipsis">账户余额：{{Number(this.info.balance).toFixed(6)}} ETH</p>    
+            <div id="qrCode"></div>
+            <p class="wallet o-link">{{this.info.wallet}}</p>
+            <div class="btn-group text-center">
+                <a-button @click="show = false">取消</a-button>
+                <a-button type="primary" @click="handleWallet">已充值</a-button>
+            </div>
+            <ul>
+                <li>注意事项：</li>
+                <li>充值前请认真核实您的推荐人是否正确</li>
+                <li>请勿充值任何非以太坊ETH数字资产</li>
+                <li>每次最小充值金额：0.01 ETH</li>
+                <li>充值成功后六次网络确认后（3-5分钟）到账</li>
+                <li>充值地址追踪按钮可以查看区块链到账情况</li>
+            </ul>
         </a-modal>
     </a-spin>
 </template>
@@ -73,6 +96,7 @@ import MoneyBox from '@/components/earnings/money'
 import { mapGetters } from 'vuex'
 import { FETCH_MYDATA } from '@/store'
 import tabMixin from '@/components/mixins/tab-mixin'
+import QRCode from 'qrcodejs2'
 export default {
     components: {
         MoneyBox,
@@ -86,6 +110,7 @@ export default {
                 referrer: ''
             },
             listData: [],
+            show: false,
             visible: false,
             loading: false,
             tip: '',
@@ -95,6 +120,11 @@ export default {
                 url: require('../assets/img/banner.png')
             },
             operList: [{
+                label: '操作记录',
+                routeName: 'OperRecord',
+                params: { id: 0 },
+                icon: require('../assets/img/icon-oper-record.jpg')
+            }, {
                 label: 'API管理',
                 routeName: 'ApiManager',
                 icon: require('../assets/img/icon-api-import.jpg')
@@ -118,7 +148,13 @@ export default {
     },
     mixins: [ tabMixin ],
     computed: {
-        ...mapGetters([ 'MY_DATA', 'BANNER' ])
+        ...mapGetters([ 'MY_DATA', 'BANNER' ]),
+        balance() {
+            if (this.info.balance) {
+                return Number(this.info.balance).toFixed(6)
+            }
+            return 0
+        }
     },
     methods: {
         getData() {
@@ -131,6 +167,9 @@ export default {
                 if (res.code === 0) {
                     const data = res.data || {}
                     this.info = { ...data }
+                    if (this.$route.query.ob) {
+                        this.getPay()
+                    }
                     this.$store.dispatch({
                         type: FETCH_MYDATA,
                         res: {
@@ -141,20 +180,17 @@ export default {
             })
         },
         getPay() {
-            this.loading = true
-            this.tip = '充值中...'
-            this.title = '钱包地址'
-            this.$axios({
-                url: '/api/user/pay',
-                custom: {
-                    vm: this
-                }
-            }).then(res => {
-                this.loading = false
-                if (res.code === 0) {
-                    const data = res.data || {}
-                    this.content = data.wallet
-                    this.visible = true
+            this.show = true
+            this.$nextTick(() => {
+                const ele = document.getElementById('qrCode')
+                if (!this.qrcode) {
+                    this.qrcode = new QRCode(ele, {
+                        width: ele.clientWidth,
+                        height: ele.clientWidth
+                    })
+                    this.qrcode.clear()
+                    // this.qrcode.makeCode(`${this.href}?code=${this.invite_code}`)
+                    this.qrcode.makeCode(this.info.wallet)
                 }
             })
         },
@@ -195,8 +231,20 @@ export default {
         },
         clickHandler(item) {
             if (item.routeName) {
-                this.$router.push({ name: item.routeName })
+                this.$router.push({ name: item.routeName, params: item.params || {} })
             }
+        },
+        handleWallet() {
+            this.loading = true
+            this.$axios({
+                url: '/api/user/deposit'
+            }).then(res => {
+                this.loading = false
+                if (res.code === 0 || res.code === 1) {
+                    this.$message.success(res.msg)
+                    this.show = false
+                }
+            })
         }
     }
 }
@@ -306,6 +354,11 @@ export default {
         li {
             width: 50% !important;
         }
+        &.money-wrapper {
+            li {
+                width: 25% !important;
+            }
+        }
     }
     .ad-wrapper {
         width: 100%;
@@ -315,6 +368,39 @@ export default {
             height: 100%;
             width: 100%;
         }
+    }
+}
+.wallet-modal {
+    #qrCode {
+        width: 80%;
+        margin: .2rem auto;
+    }
+    .ant-modal {
+        top: 10%;
+        margin: 0 auto;
+    }
+    p {
+        padding: .1rem 0;
+        &:last-child {
+            border-top: 1px solid #f8f8f8;
+        }
+        &:first-child {
+            border-bottom: 1px solid #f8f8f8;
+        }
+        &.wallet {
+            font-size: .2rem;
+        }
+    }
+    .btn-group {
+        padding: 0.2rem 0;
+        border-bottom: 1px solid #f8f8f8;
+        button:nth-child(1) {
+            margin-right: .4rem;
+        }
+    }
+    ul {
+        padding-top: .1rem;
+        font-size: .2rem;
     }
 }
 </style>

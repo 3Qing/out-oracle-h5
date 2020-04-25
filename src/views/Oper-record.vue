@@ -10,9 +10,9 @@
                 </div>
                 <p class="no-data" v-if="!listData.length">暂无数据</p>
                 <div class="tr" v-for="(item, i) in listData" :key="i">
-                    <span>{{item.date}}</span>
-                    <span class="text-center">{{item.gain}}</span>
-                    <span class="text-right">{{item.gain}}</span>
+                    <span>{{item.name || item.task_id}}</span>
+                    <span class="text-center">{{item.created_at}}</span>
+                    <span class="text-right">{{item.action}}</span>
                 </div>
             </div>
         </div>
@@ -34,16 +34,17 @@ export default {
     },
     methods: {
         getData() {
+            this.loading = true
             this.$axios({
                 url: '/api/task/log',
-                params: {
-                    task: this.$route.params.id
-                },
                 custom: {
                     vm: this
                 }
             }).then(res => {
-                console.log(res)
+                this.loading = false
+                if (res.code === 0) {
+                    this.listData = res.data || []
+                }
             })
         }
     }
@@ -58,9 +59,20 @@ export default {
         font-weight: bold;
     }
     .list-wrapper {
+        .item-wrapper {
+            border-bottom: none !important;
+        }
         padding: 0 !important;
         .th {
             color: #333 !important;
+        }
+        .th, .tr {
+            align-items: center;
+            padding-bottom: .06rem;
+            border-bottom: 1px solid #f8f8f8 !important;
+            span:nth-child(2) {
+                width: 40% !important;
+            }
         }
     }
 }

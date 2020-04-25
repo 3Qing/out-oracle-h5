@@ -17,7 +17,7 @@
                     <img src="../assets/img/icon-contract.jpg">
                     <p>合约交易</p>
                 </router-link>
-                <router-link class="fl" :to="{ name: 'Article' }">
+                <router-link class="fl" :to="{ name: 'Article', params: { id: 1 } }">
                     <img src="../assets/img/icon-about.jpg">
                     <p>关于交易</p>
                 </router-link>
