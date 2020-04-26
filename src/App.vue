@@ -118,6 +118,7 @@ export default {
 .container {
     width: 100%;
     height: 100%;
+    overflow-x: hidden;
     position: relative;
     background: #f0f2f5;
     .header-wrapper {
@@ -145,6 +146,7 @@ export default {
     }
     main {
         overflow-y: auto;
+        overflow-x: hidden;
         height: calc(100% - 1.96rem);
         &.full-page {
             height: calc(100% - 1rem);

@@ -8,10 +8,11 @@
             {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.name}：${data.akey}`}}
         </div>
         <div class="clearfix header">
-            <span class="fl">参数设置</span>
+            <span :class="[!isPreview && 'o-link', 'fl']" @click="isPreview = false">参数设置</span>
+            <span :class="[isPreview && 'o-link', 'fl']" @click="isPreview = true">策略预览</span>
             <span class="fr" @click="handleClick">AI自动填充</span>
         </div>
-        <div class="trans-amount">
+        <div class="trans-amount" v-show="!isPreview">
             <div class="amount-item clearfix">
                 <span>投入总量：<a-input-number v-model="form.fund1" :min="0" :max="100"></a-input-number></span>
                 <a-input class="fr" v-model="form.symbol1"></a-input>
@@ -27,6 +28,24 @@
             <div class="amount-item clearfix">
                 <span>每笔交易占比：</span>
                 <span class="fr"><a-input-number v-model="form.ratio"></a-input-number>%</span>
+            </div>
+        </div>
+        <div class="trans-amount" v-show="isPreview">
+            <div class="amount-item clearfix">
+                <span>投入总量：</span>
+                <span class="fr">{{form.fund1}} {{form.symbol1}}</span>
+            </div>
+            <div class="amount-item clearfix">
+                <span>投入总量：</span>
+                <span class="fr">{{form.fund2}} {{form.symbol2}}</span>
+            </div>
+            <div class="amount-item clearfix">
+                <span>价格间距：</span>
+                <span class="fr">{{form.per1}}%</span>
+            </div>
+            <div class="amount-item clearfix">
+                <span>每笔交易占比：</span>
+                <span class="fr">{{form.ratio}}%</span>
             </div>
         </div>
         <div class="tip-wrapper">
@@ -56,7 +75,8 @@ export default {
                 per1: '',
                 per2: '',
                 ratio: '',
-            }
+            },
+            isPreview: false
         }
     },
     mounted() {
@@ -175,6 +195,10 @@ export default {
     .header {
         height: .8rem;
         line-height: .8rem;
+        color: #999;
+        .fl {
+            margin-right: 0.2rem;
+        }
         .fr {
             color: #19458e;
         }

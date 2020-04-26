@@ -22,9 +22,6 @@ module.exports = {
                     'primary-color': '#1951a3',
                     'success-color': '#45BE87',
                     'danger-color': 'rgba(255, 77, 79, 0.8)'
-                    // 'primary-color': '#1DA57A',
-                    // 'link-color': '#1DA57A',
-                    // 'border-radius-base': '2px',
                 },
                 javascriptEnabled: true,
             },

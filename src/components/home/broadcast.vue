@@ -1,8 +1,8 @@
 <template>
     <div class="broadcast-box">
-        <i class="iconfont icon-V"></i>
-        <swiper :options="options">
-            <swiper-slide v-for="item in data" :key="item.id" @click.native="toPage(item)">{{item.name}}</swiper-slide>
+        <i class="iconfont icon-V" v-if="icon"></i>
+        <swiper :options="options" @click-slide="toPage">
+            <swiper-slide v-for="item in data" :key="item.id">{{item.name}}</swiper-slide>
         </swiper>
     </div>
 </template>
@@ -16,7 +16,11 @@ export default {
         SwiperSlide
     },
     props: {
-        data: Array
+        data: Array,
+        icon: {
+            type: Boolean,
+            default: true
+        }
     },
     data() {
         return {
@@ -28,9 +32,9 @@ export default {
         }
     },
     methods: {
-        toPage(item) {
-            if (item.link) {
-                window.location.href = item.link
+        toPage(index, realIndex) {
+            if (this.data[realIndex].link) {
+                window.location.href = this.data[realIndex].link
             }
         }
     }
@@ -44,10 +48,9 @@ export default {
     overflow: hidden;
     font-size: .24rem;
     position: relative;
-    margin-top: .1rem;
     .iconfont {
         position: absolute;
-        left: 0.4rem;
+        left: 0;
         top: 0;
         color: #00233d;
         font-size: 0.32rem;

@@ -1,7 +1,7 @@
 <template>
     <card-box :opt="opt" class="trans-box">
         <ul class="clearfix">
-            <li class="fl" v-for="(item, i) in data" :key="i">
+            <li class="fl overflow" v-for="(item, i) in data" :key="i">
                 <rate-card :data="item" @click.native="toPage(item)"></rate-card>
             </li>
         </ul>

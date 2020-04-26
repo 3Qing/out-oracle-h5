@@ -1,6 +1,7 @@
 <template>
     <div class="rate-card">
         <div v-if="rateType" class="rate-text-content">
+            <span class="subscript" v-if="data.status === 0">即将上线</span>
             <p class="trans-type">{{data.title || '交易类型'}}</p>
             <p class="tatic-type"><span>{{data.name}}</span> 高频策略</p>
             <p class="ratio"><span>{{data.annual || '0.00'}}</span>%</p>
@@ -10,7 +11,6 @@
             <p class="ratio"><span>{{data.annual || '0.00'}}</span>%</p>
             <p class="time"><span>近一月年化率</span></p>
         </div>
-        <span v-if="data.status === 0" class="badge">即将上线</span>
     </div>
 </template>
 
@@ -58,6 +58,23 @@ export default {
     }
     .rate-text-content {
         text-align: center;
+        .subscript {
+            color: #fff;
+            height: .5rem;
+            width: 2rem;
+            position: absolute;
+            right: -0.55rem;
+            top: 0.2rem;
+            text-align: center;
+            line-height: .5rem;
+            font-size: .2rem;
+            background-color: @primary-color;
+            -moz-transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
     }
     .rate-content {
         .ratio {

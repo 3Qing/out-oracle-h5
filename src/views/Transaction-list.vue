@@ -3,7 +3,7 @@
         <div class="top">
             <div class="marquee-wrapper">
                 <span class="marquee-title">公告</span>
-                <marquee behavior="scroll" direction="left">公告内容</marquee>
+                <broadcast :data="topNotice" :icon="false"></broadcast>
             </div>
             <div class="oper-list clearfix">
                 <div class="oper-item fl" v-for="(item, i) in operList" :key="i" @click="clickHandler(item)">
@@ -20,7 +20,7 @@
         </div>
         <div class="tactic-list mt-10">
             <div class="list-header">
-                <div class="left">全部分类</div>
+                <!-- <div class="left">全部分类</div> -->
                 <!-- <div class="right">
                     <span><i></i>综合</span>
                     <span><i></i>筛选</span>
@@ -35,9 +35,11 @@
 
 <script>
 import TacticList from '@/components/transaction/list'
+import Broadcast from '@/components/home/broadcast'
 export default {
     components: {
-        TacticList
+        TacticList,
+        Broadcast
     },
     data() {
         return {
@@ -56,12 +58,14 @@ export default {
                 params: { id: 0 },
                 icon: require('../assets/img/icon-guide.jpg')
             }],
-            listData: []
+            listData: [],
+            topNotice: []
         }
     },
     beforeRouteEnter (to, from, next) {
         next(vm => {
             vm.getTacticList()
+            vm.getNotice()
         })
     },
     methods: {
@@ -89,6 +93,22 @@ export default {
                 }
             })
         },
+        getNotice() {
+            this.$axios({
+                url: '/api/notice'
+            }).then(res => {
+                if (res.code === 0) {
+                    const data = res.data || []
+                    let topNotice = []
+                    data.forEach(item => {
+                        if (item.top === 1) {
+                            topNotice.push(item)
+                        }
+                    })
+                    this.topNotice = [ ...topNotice ]
+                }
+            })
+        }
     }
 }
 </script>
@@ -103,16 +123,15 @@ export default {
             line-height: .6rem;
             padding-left: .4rem;
             background-color: #f8f8f8;
+            position: relative;
             .marquee-title {
+                position: absolute;
+                left: .1rem;
                 color: #0a0a0a;
                 margin-right: 0.2rem;
             }
-            marquee {
-                color: #d1b794;
-                vertical-align: top;
-                display: inline-block;
-                font-size: .2rem;
-                width: calc(100% - .8rem);
+            .broadcast-box {
+                padding-top: 0.08rem;
             }
         }
         .oper-list {

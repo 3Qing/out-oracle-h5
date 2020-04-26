@@ -36,9 +36,10 @@ export default {
     },
     methods: {
         toPage(item) {
-            if (item.link) {
-                window.location.href = item.link
-            }
+            this.$router.push({ name: 'Article', params: {
+                type: 'notice',
+                id: item.id
+            } })
         }
     }
 }

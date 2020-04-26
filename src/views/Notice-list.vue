@@ -35,10 +35,15 @@ export default {
                 }
             }).then(res => {
                 this.loading = false
-                console.log(res)
                 if (res.code === 0) {
                     const data = res.data  || []
-                    this.listData = [ ...data ]
+                    let listData = []
+                    data.forEach(item => {
+                        if (item.top === 0) {
+                            listData.push(item)
+                        }
+                    })
+                    this.listData = [ ...listData ]
                 }
             })
         }

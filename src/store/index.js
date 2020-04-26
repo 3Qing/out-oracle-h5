@@ -14,6 +14,8 @@ export const CHANGE_EARNDATA = 'CHANGE_EARNDATA'
 export const SET_EARNDATA = 'SET_EARNDATA'
 export const CHANGE_RECOMDATA = 'CHANGE_RECOMDATA'
 export const SET_RECOMDATA = 'SET_RECOMDATA'
+// export const CHANGE_TOPNOTICE = 'CHANGE_TOPNOTICE'
+export const SET_TOPNOTICE = 'SET_TOPNOTICE'
 
 Vue.use(Vuex)
 
@@ -22,6 +24,7 @@ const state = {
     myData: null,
     homeData: null,
     banner: null,
+    topNotice: null,
     tranData: null,
     earnData: null,
     recomData: null
@@ -67,12 +70,10 @@ export default new Vuex.Store({
                 obj[data.field] = data.res
                 state.recomData = obj
             }
-            // if (state.recomData) {
-            //     state.recomData = Object.assign(state.recomData, data.res)
-            // } else {
-            //     state.recomData = data.res
-            // }
         },
+        [SET_TOPNOTICE](state, data) {
+            state.topNotice = data
+        }
     },
     actions: {
         // 获取用户信息
@@ -87,6 +88,9 @@ export default new Vuex.Store({
                 commit(SET_HOMEDATA, payload.res)
             } else {
                 commit(SET_BANNER, payload.data)
+            }
+            if (payload.topNotice) {
+                commit(SET_TOPNOTICE, payload.topNotice)
             }
         },
         [CHANGE_TRANDATA]({ commit }, payload) {

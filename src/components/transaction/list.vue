@@ -57,19 +57,19 @@ export default {
         .subscript {
             color: #fff;
             height: .5rem;
-            width: 1.3rem;
+            width: 2rem;
             position: absolute;
-            right: -.4rem;
-            top: 0;
+            right: -0.55rem;
+            top: 0.2rem;
             text-align: center;
             line-height: .5rem;
             font-size: .2rem;
             background-color: @primary-color;
-            -moz-transform: rotate(45deg) scale(.8);
-            -webkit-transform: rotate(45deg) scale(.8);
-            -o-transform: rotate(45deg) scale(.8);
-            -ms-transform: rotate(45deg) scale(.8);
-            transform: rotate(45deg) scale(.8);
+            -moz-transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
         }
         &:active {
             opacity: 0.5;

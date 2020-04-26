@@ -22,6 +22,7 @@ import SetDetail from '@/views/Set-detail'
 import EarningOverview from '@/views/Earning-overview'
 import Article from '@/views/Article'
 import OperRecord from '@/views/Oper-record'
+import Recharge from '@/views/Recharge'
 
 Vue.use(VueRouter)
 
@@ -126,13 +127,17 @@ const routes = [
         name: 'EarningOverview',
         component: EarningOverview
     }, {
-        path: '/article/:id',
+        path: '/article/:type/:id',
         name: 'Article',
         component: Article
     }, {
         path: '/operecord/:id',
         name: 'OperRecord',
         component: OperRecord
+    }, {
+        path: '/recharge',
+        name: 'Recharge',
+        component: Recharge
     }
 ]
 

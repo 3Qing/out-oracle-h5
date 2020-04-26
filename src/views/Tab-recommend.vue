@@ -26,7 +26,13 @@
                         v-clipboard:copy="info.invite_code"
                         v-clipboard:success="copy">复制</a-button>
                 </div>
-                <a-button class="code-recom" @click="showModal">二维码邀请</a-button>
+                <div class="btn-group">
+                    <a-button class="btn btn-qrcode" @click="showModal">二维码邀请</a-button>
+                    <a-button
+                        class="btn btn-extend"
+                        v-clipboard:copy="link"
+                        v-clipboard:success="copy">复制推广链接</a-button>
+                </div>
                 <ul class="reward-wrapper">
                     <li>
                         <money-box text="奖励总览" :value="total" unit="ETH" :show-line="false" @click.native="toPage(1)"></money-box>
@@ -46,6 +52,9 @@
             :footer="null"
             title="邀请码">
             <div id="qrCode"></div>
+            <div class="text-center mt-10">
+                <a-button @click="downloadQrcode">保存到相册</a-button>
+            </div>
         </a-modal>
         <a-modal
             width="80%"
@@ -66,6 +75,7 @@ import MoneyBox from '@/components/earnings/money'
 import { mapGetters } from 'vuex'
 import { FETCH_MYDATA, CHANGE_RECOMDATA } from '@/store'
 import QRCode from 'qrcodejs2'
+import TabMixin from '@/components/mixins/tab-mixin'
 export default {
     components: {
         MoneyBox
@@ -89,6 +99,7 @@ export default {
             total: 0
         }
     },
+    mixins: [ TabMixin ],
     beforeRouteEnter (to, from, next) {
         next(vm => {
             if (vm.MY_DATA) {
@@ -103,7 +114,10 @@ export default {
         })
     },
     computed: {
-        ...mapGetters([ 'MY_DATA', 'RECOM_DATA' ])
+        ...mapGetters([ 'MY_DATA', 'RECOM_DATA' ]),
+        link() {
+            return `${this.href}?code=${this.info.invite_code}`
+        }
     },
     methods: {
         getData() {
@@ -151,6 +165,7 @@ export default {
             this.$axios({
                 url: '/host'
             }).then(res => {
+                console.log(res)
                 if (res.code === 0)  {
                     this.href = res.data || window.location.origin
                 }
@@ -173,7 +188,7 @@ export default {
                         height: ele.clientWidth
                     })
                     this.qrcode.clear()
-                    this.qrcode.makeCode(`${this.href}?code=${this.invite_code}`)
+                    this.qrcode.makeCode(`${this.href}?code=${this.info.invite_code}`)
                 }
             })
         },
@@ -280,15 +295,25 @@ export default {
                 display: inline-block;
             }
         }
-        .code-recom {
-            width: 100%;
-            color: #fff;
-            margin: .4rem 0 .2rem;
-            height: .7rem;
-            line-height: .7rem;
-            border-radius: .5rem;
-            border-color: #1951a3;
-            background-color: #1951a3;
+        .btn-group {
+            display: flex;
+            padding: 0 .4rem;
+            justify-content: space-between;
+            .btn {
+                width: 45%;
+                color: #fff;
+                margin: .4rem 0 .2rem;
+                height: .7rem;
+                line-height: .68rem;
+                border-radius: .5rem;
+                border-color: #1951a3;
+                background-color: #1951a3;
+                &.btn-extend {
+                    color: #333;
+                    border-color: #ccc;
+                    background-color: transparent
+                }
+            }
         }
         .reward-wrapper {
             display: flex;

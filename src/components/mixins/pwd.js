@@ -14,7 +14,7 @@ export default {
             if (value === '') {
                 callback(new Error('请输入手机号码'))
             } else {
-                let _regPhone = /^[1][3,4,5,7,8][0-9]{9}$/
+                let _regPhone = /^[1][3,4,5,6,7,8][0-9]{9}$/
                 if (this.form.phone !== '' && _regPhone.test(value)) {
                     this.$refs.form.validateField('phone')
                     callback()

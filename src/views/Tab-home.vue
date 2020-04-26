@@ -1,7 +1,9 @@
 <template>
     <div class="home-wrapper main-wrapper">
         <swiper-wrapper :data="banner"></swiper-wrapper>
-        <broadcast :data="comps[2].data"></broadcast>
+        <div style="padding-top: .1rem;">
+            <broadcast :data="topNotice"></broadcast>
+        </div>
         <component v-for="(item, i) in comps" :key="i" :is="item.is" :data="item.data" class="mt-10" :opt="item.opt"></component>
     </div>
 </template>
@@ -27,7 +29,7 @@ export default {
                 is: Transaction,
                 type: 1,
                 opt: {
-                    title: '短线交易策略'
+                    title: '币本位交易'
                 },
                 data: [{
                     type: 1
@@ -38,7 +40,7 @@ export default {
                 is: Transaction,
                 type: 2,
                 opt: {
-                    title: '长线交易策略 '
+                    title: '现货策略'
                 },
                 data: [{
                     type: 2
@@ -59,7 +61,8 @@ export default {
                 url: require('../assets/img/banner.png')
             }, {
                 url: require('../assets/img/banner.png')
-            }]
+            }],
+            topNotice: []
         }
     },
     mixins: [ tabMixin ],
@@ -71,13 +74,16 @@ export default {
             if (vm.BANNER) {
                 vm.banner = [ ...vm.BANNER ]
             }
+            if (vm.TOP_NOTICE) {
+                vm.topNotice = [ ...vm.TOP_NOTICE ]
+            }
             vm.getTacticList()
             vm.getNotice()
             vm.getBanner()
         })
     },
     computed: {
-        ...mapGetters([ 'HOME_DATA', 'BANNER' ])
+        ...mapGetters([ 'HOME_DATA', 'BANNER', 'TOP_NOTICE' ])
     },
     methods: {
         getTacticList() {
@@ -120,14 +126,25 @@ export default {
             this.$axios({
                 url: '/api/notice'
             }).then(res => {
-                console.log(res)
                 if (res.code === 0) {
                     const comps = [ ...this.comps ]
-                    comps[2].data = res.data || []
+                    const data = res.data || []
+                    let topNotice = []
+                    let noticeList = []
+                    data.forEach(item => {
+                        if (item.top === 0) {
+                            noticeList.push(item)
+                        } else if (item.top === 1) {
+                            topNotice.push(item)
+                        }
+                    })
+                    this.topNotice = topNotice
+                    comps[2].data = noticeList
                     this.comps = [ ...comps ]
                     this.$store.dispatch({
                         type: CHANGE_HOMEDATA,
-                        res: comps
+                        res: comps,
+                        topNotice: topNotice
                     })
                 }
             })

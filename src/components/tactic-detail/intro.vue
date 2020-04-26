@@ -3,10 +3,10 @@
         <p class="wrapper-title">策略介绍</p>
         <div class="content" v-html="data.introduce">
         </div>
-        <div>
+        <!-- <div>
             <div class="wrapper-title">策略推荐</div>
             <tactic-list :data="list"></tactic-list>
-        </div>
+        </div> -->
         <div class="bottom" v-if="data.status">
             <a-button type="primary" @click="$emit('show')">开启合约量化</a-button>
         </div>
@@ -14,10 +14,10 @@
 </template>
 
 <script>
-import TacticList from '@/components/transaction/list'
+// import TacticList from '@/components/transaction/list'
 export default {
     components: {
-        TacticList
+        // TacticList
     },
     props: {
         data: {

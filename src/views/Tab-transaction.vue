@@ -101,10 +101,14 @@ export default {
                         3: []
                     }
                     data.forEach(item => {
-                        list[item.type].push(item)
+                        if (item.type) {
+                            list[item.type].push(item)
+                        }
                     })
                     comps.forEach(item => {
-                        item.data = list[item.type].length ? list[item.type] : [{}]
+                        if (item.type) {
+                            item.data = list[item.type].length ? list[item.type] : [{}]
+                        }
                     })
                     this.$store.dispatch({
                         type: CHANGE_TRANDATA,

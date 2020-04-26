@@ -6,8 +6,8 @@
             </div>
             <div class="user-wrapper">
                 <div class="top">
-                    <span class="account">{{info.phone || '手机号'}}</span>
-                    <span class="community" v-if="false">{{info.referrer}}</span>
+                    <span class="account">{{formatPhone(info.phone) || '手机号'}}</span>
+                    <span class="community">Lv{{Number(info.level) || 1}}</span>
                 </div>
                 <div class="uid">
                     <p>UID:{{info.id || '-'}}</p>
@@ -22,16 +22,16 @@
             <li>
                 <money-box :value="incomeData.total" @click.native="toPage(1, 0)"></money-box>
             </li>
+            <li>
+                <money-box text="年化收益" unit="%" :value="incomeData.years" :show-arrow="false"></money-box>
+            </li>
         </ul>
         <ul class="earning-type">
             <li>
-                <money-box text="今日收益" :value="incomeData.today" :show-line="false" :show-arrow="false"></money-box>
+                <money-box text="今日收益" :value="incomeData.today" :show-arrow="false"></money-box>
             </li>
             <li>
-                <money-box text="昨日收益" :value="incomeData.yesterday" :show-line="false" :show-arrow="false"></money-box>
-            </li>
-            <li>
-                <money-box text="年化收益" unit="%" :value="incomeData.years" :show-line="false" :show-arrow="false"></money-box>
+                <money-box text="昨日收益" :value="incomeData.yesterday" :show-arrow="false"></money-box>
             </li>
         </ul>
         <div class="oper-list clearfix">
@@ -42,20 +42,25 @@
                 <p>{{item.label}}</p>
             </div>
         </div>
-        <ul class="earning-overview" style="margin-top: .3rem">
+        <ul class="earning-overview balance-wrapper" style="margin-top: .3rem">
             <li>
-                <span>资金：{{info.balance || 0}} ETH</span>
+                <span>资金：{{Number(info.balance).toFixed(6) || 0}} ETH</span>
             </li>
-            <li class="text-right">
-                <a-button size="small" type="primary" @click="getPay">充值</a-button>
+            <li class="text-center">
+                <p>
+                    <a-button size="small" type="primary" @click="getPay">充值</a-button>
+                </p>
+                <p class="mt-10">
+                    <a-button size="small" @click="toPage(3)">充值记录</a-button>
+                </p>
             </li>
         </ul>
         <div class="ad-wrapper">
             <img :src="banner.url">
         </div>
-        <div class="list-wrapper">
+        <!-- <div class="list-wrapper">
             <tactic-list :data="listData"></tactic-list>
-        </div>
+        </div> -->
         <a-modal
             width="80%"
             v-model="visible"
@@ -75,7 +80,7 @@
             <div id="qrCode"></div>
             <p class="wallet o-link">{{this.info.wallet}}</p>
             <div class="btn-group text-center">
-                <a-button @click="show = false">取消</a-button>
+                <a-button @click="downloadQrcode">保存到相册</a-button>
                 <a-button type="primary" @click="handleWallet">已充值</a-button>
             </div>
             <ul>
@@ -91,16 +96,17 @@
 </template>
 
 <script>
-import TacticList from '@/components/transaction/list'
+// import TacticList from '@/components/transaction/list'
 import MoneyBox from '@/components/earnings/money'
 import { mapGetters } from 'vuex'
 import { FETCH_MYDATA } from '@/store'
 import tabMixin from '@/components/mixins/tab-mixin'
 import QRCode from 'qrcodejs2'
+
 export default {
     components: {
-        MoneyBox,
-        TacticList
+        MoneyBox
+        // TacticList
     },
     data() {
         return {
@@ -148,7 +154,7 @@ export default {
     },
     mixins: [ tabMixin ],
     computed: {
-        ...mapGetters([ 'MY_DATA', 'BANNER' ]),
+        ...mapGetters([ 'MY_DATA', 'BANNER', 'ISI_PHONE' ]),
         balance() {
             if (this.info.balance) {
                 return Number(this.info.balance).toFixed(6)
@@ -217,6 +223,8 @@ export default {
                 this.$router.push({ name: 'EarningOverview', params: { id } })
             } else if (type === 2) {
                 this.$router.push({ name: 'ApiManager' })
+            } else if (type === 3) {
+                this.$router.push({ name: 'Recharge' })
             } else {
                 this.$router.push({ name: 'AccountSet' })
             }
@@ -245,6 +253,13 @@ export default {
                     this.show = false
                 }
             })
+        },
+        formatPhone(value) {
+            if (value) {
+                const reg = /(\d{3})\d*(\d{4})/
+                return value.replace(reg,'$1****$2')
+            }
+            return ''
         }
     }
 }
@@ -309,6 +324,9 @@ export default {
     }
     .earning-type {
         padding-top: 0.2rem;
+        li {
+            width: 40% !important;
+        }
     }
     .oper-list {
         margin-top: .6rem;
@@ -343,7 +361,7 @@ export default {
     }
     .earning-overview {
         button {
-            width: 1.2rem;
+            min-width: 1.6rem;
             height: .6rem;
             border-radius: 0;
         }
@@ -354,9 +372,17 @@ export default {
         li {
             width: 50% !important;
         }
+        &.balance-wrapper {
+            li:nth-child(1) {
+                width: 70% !important;
+            }
+            li:last-child {
+                width: 30% !important;
+            }
+        }
         &.money-wrapper {
             li {
-                width: 25% !important;
+                width: 40% !important;
             }
         }
     }

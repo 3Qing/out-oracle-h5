@@ -95,6 +95,66 @@ export default {
                     cb && cb()
                 }
             })
+        },
+        downloadQrcode() {
+            const qrCode = document.querySelector('#qrCode').children[0]
+            const url = qrCode.toDataURL('image/png')
+            const filename = `${Date.now()}.png`
+            const formData = new FormData()
+            formData.append('upload-file', this.dataURLToFile(url, filename))
+            this.$axios({
+                method: 'POST',
+                url: `/upload`,
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                params: formData
+            }).then(() => {
+                this.downLoadImg(`http://2592b637o3.wicp.vip:24681/file/${filename}`)
+            })
+        },
+        // iframe打开图片地址
+        downLoadImg(src) {
+            // const iframe = document.createElement('iframe')
+            // iframe.style.display = 'none'
+            // iframe.src = "javascript: '<script>location.href=\"" + src + "\"</script>'"
+            // document.getElementsByTagName('body')[0].appendChild(iframe)
+            // window.open(src, '_blank')
+            // const newWindow = window.open()
+            window.location.href = src
+        },
+        // base64转为Blob类型
+        dataURLtoBlob(dataurl) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n)
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n)
+            }
+            return new Blob([u8arr], { type: mime })
+        },
+        // base64转为文件
+        dataURLToFile(dataurl, filename) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n)
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n)
+            }
+            return new File([u8arr], filename, { type: mime })
+        },
+        // PC端下载方式
+        downloadFile(url, name='What\'s the fuvk') {
+            const a = document.createElement('a')
+            a.setAttribute('href', url)
+            a.setAttribute('download', name)
+            a.setAttribute('target', '_blank')
+            let clickEvent = document.createEvent('MouseEvents')
+            clickEvent.initEvent('click', true, true)
+            a.dispatchEvent(clickEvent)
+        },
+        downloadFileByBase64(base64, name) {
+            const myBlob = this.dataURLtoBlob(base64)
+            const myUrl = URL.createObjectURL(myBlob)
+            this.downloadFile(myUrl, name)
         }
     }
 }

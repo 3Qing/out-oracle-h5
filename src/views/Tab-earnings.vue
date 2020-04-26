@@ -22,22 +22,22 @@
         <div class="ad-wrapper mt-10">
             <img src="../assets/img/banner.png" alt="广告">
         </div>
-        <div class="data-container">
+        <!-- <div class="data-container">
             <tactic-list :data="listData"></tactic-list>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script>
 import MoneyBox from '@/components/earnings/money'
-import TacticList from '@/components/transaction/list'
+// import TacticList from '@/components/transaction/list'
 import TabMixin from '@/components/mixins/tab-mixin'
 import { CHANGE_EARNDATA } from '@/store'
 import { mapGetters } from 'vuex'
 export default {
     components: {
-        MoneyBox,
-        TacticList
+        MoneyBox
+        // TacticList
     },
     data() {
         return {
