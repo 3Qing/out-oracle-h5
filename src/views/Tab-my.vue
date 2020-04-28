@@ -48,7 +48,7 @@
             </li>
             <li class="text-center">
                 <p>
-                    <a-button size="small" type="primary" @click="getPay">充值</a-button>
+                    <a-button size="small" type="primary" @click="toPage(4)">充值</a-button>
                 </p>
                 <p class="mt-10">
                     <a-button size="small" @click="toPage(3)">充值记录</a-button>
@@ -70,7 +70,7 @@
             :title="title">
             <p>{{this.content}}</p>
         </a-modal>
-        <a-modal 
+        <!-- <a-modal
             width="80%"
             v-model="show"
             wrapClassName="wallet-modal"
@@ -80,7 +80,7 @@
             <div id="qrCode"></div>
             <p class="wallet o-link">{{this.info.wallet}}</p>
             <div class="btn-group text-center">
-                <a-button @click="downloadQrcode">保存到相册</a-button>
+                <a-button @click="downloadTip">保存到相册</a-button>
                 <a-button type="primary" @click="handleWallet">已充值</a-button>
             </div>
             <ul>
@@ -91,7 +91,7 @@
                 <li>充值成功后六次网络确认后（3-5分钟）到账</li>
                 <li>充值地址追踪按钮可以查看区块链到账情况</li>
             </ul>
-        </a-modal>
+        </a-modal> -->
     </a-spin>
 </template>
 
@@ -116,7 +116,7 @@ export default {
                 referrer: ''
             },
             listData: [],
-            show: false,
+            // show: false,
             visible: false,
             loading: false,
             tip: '',
@@ -154,7 +154,7 @@ export default {
     },
     mixins: [ tabMixin ],
     computed: {
-        ...mapGetters([ 'MY_DATA', 'BANNER', 'ISI_PHONE' ]),
+        ...mapGetters([ 'MY_DATA', 'BANNER' ]),
         balance() {
             if (this.info.balance) {
                 return Number(this.info.balance).toFixed(6)
@@ -195,7 +195,6 @@ export default {
                         height: ele.clientWidth
                     })
                     this.qrcode.clear()
-                    // this.qrcode.makeCode(`${this.href}?code=${this.invite_code}`)
                     this.qrcode.makeCode(this.info.wallet)
                 }
             })
@@ -225,6 +224,8 @@ export default {
                 this.$router.push({ name: 'ApiManager' })
             } else if (type === 3) {
                 this.$router.push({ name: 'Recharge' })
+            } else if (type === 4) {
+                this.$router.push({ name: 'WalletDetail' })
             } else {
                 this.$router.push({ name: 'AccountSet' })
             }
@@ -242,18 +243,18 @@ export default {
                 this.$router.push({ name: item.routeName, params: item.params || {} })
             }
         },
-        handleWallet() {
-            this.loading = true
-            this.$axios({
-                url: '/api/user/deposit'
-            }).then(res => {
-                this.loading = false
-                if (res.code === 0 || res.code === 1) {
-                    this.$message.success(res.msg)
-                    this.show = false
-                }
-            })
-        },
+        // handleWallet() {
+        //     this.loading = true
+        //     this.$axios({
+        //         url: '/api/user/deposit'
+        //     }).then(res => {
+        //         this.loading = false
+        //         if (res.code === 0 || res.code === 1) {
+        //             this.$message.success(res.msg)
+        //             this.show = false
+        //         }
+        //     })
+        // },
         formatPhone(value) {
             if (value) {
                 const reg = /(\d{3})\d*(\d{4})/
@@ -418,7 +419,7 @@ export default {
         }
     }
     .btn-group {
-        padding: 0.2rem 0;
+        padding: 0.4rem 0 !important;
         border-bottom: 1px solid #f8f8f8;
         button:nth-child(1) {
             margin-right: .4rem;

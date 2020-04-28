@@ -23,6 +23,7 @@ import EarningOverview from '@/views/Earning-overview'
 import Article from '@/views/Article'
 import OperRecord from '@/views/Oper-record'
 import Recharge from '@/views/Recharge'
+import WalletDetail from '@/views/Wallet-detail'
 
 Vue.use(VueRouter)
 
@@ -138,6 +139,10 @@ const routes = [
         path: '/recharge',
         name: 'Recharge',
         component: Recharge
+    }, {
+        path: '/walletdetail',
+        name: 'WalletDetail',
+        component: WalletDetail
     }
 ]
 

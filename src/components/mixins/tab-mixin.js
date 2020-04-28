@@ -96,6 +96,9 @@ export default {
                 }
             })
         },
+        downloadTip() {
+            this.$message.info('请长按图片保存到相册')
+        },
         downloadQrcode() {
             const qrCode = document.querySelector('#qrCode').children[0]
             const url = qrCode.toDataURL('image/png')

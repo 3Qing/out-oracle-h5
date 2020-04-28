@@ -53,7 +53,7 @@
             title="邀请码">
             <div id="qrCode"></div>
             <div class="text-center mt-10">
-                <a-button @click="downloadQrcode">保存到相册</a-button>
+                <a-button @click="downloadTip">保存到相册</a-button>
             </div>
         </a-modal>
         <a-modal
@@ -116,7 +116,7 @@ export default {
     computed: {
         ...mapGetters([ 'MY_DATA', 'RECOM_DATA' ]),
         link() {
-            return `${this.href}?code=${this.info.invite_code}`
+            return `${window.location.origin}/#/register?code=${this.info.invite_code}`
         }
     },
     methods: {
@@ -188,7 +188,7 @@ export default {
                         height: ele.clientWidth
                     })
                     this.qrcode.clear()
-                    this.qrcode.makeCode(`${this.href}?code=${this.info.invite_code}`)
+                    this.qrcode.makeCode(this.link)
                 }
             })
         },

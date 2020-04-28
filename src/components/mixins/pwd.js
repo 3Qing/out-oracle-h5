@@ -6,17 +6,20 @@ export default {
             tip: '',
             count: 0,
             lock: false,
-            timer: null
+            timer: null,
+            phonePass: false
         }
     },
     methods: {
         validatePhone(rule, value, callback) {
+            this.phonePass = false
             if (value === '') {
                 callback(new Error('请输入手机号码'))
             } else {
                 let _regPhone = /^[1][3,4,5,6,7,8][0-9]{9}$/
                 if (this.form.phone !== '' && _regPhone.test(value)) {
-                    this.$refs.form.validateField('phone')
+                    // this.$refs.form.validateField('phone')
+                    this.phonePass = true
                     callback()
                 } else {
                     callback(new Error('请输入正确的手机号码'))
@@ -29,7 +32,7 @@ export default {
             } else {
                 let _regPass = /^[0-9a-zA-Z]*$/g
                 if (this.form.password !== '' && _regPass.test(value)) {
-                    this.$refs.form.validateField('checkPass')
+                    // this.$refs.form.validateField('checkPass')
                     callback()
                 } else {
                     callback(new Error('密码应为数字或字母'))
@@ -97,6 +100,7 @@ export default {
                     let params
                     if (this.$route.name === 'Register') {
                         params = { ...this.form, vcode: this.vcode }
+                        params.password2 = params.password
                     } else {
                         params = {
                             phone: this.form.phone,

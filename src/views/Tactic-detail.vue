@@ -87,7 +87,8 @@ export default {
             taskStatus: 0,
             akey: '',
             visible: false,
-            amount: 0
+            amount: 0,
+            apiAmount: {}
         }
     },
     beforeRouteEnter (to, from, next) {
@@ -138,6 +139,7 @@ export default {
                             this.getTaskDetail()
                             this.getTaskStatus()
                             this.getApi()
+                            this.getBalance()
                         }
                     }
                 }
@@ -154,7 +156,6 @@ export default {
                 }
             }).then(res => {
                 if (res.code === 0) {
-                    console.log(res)
                     const data = res.data || {}
                     this.akey = data.access_key || ''
                 }
@@ -202,7 +203,7 @@ export default {
             const tactic = this.userInfo.tactics.substring(1, this.userInfo.tactics.length - 1).split('|')
             if (tactic.includes(String(this.info.id))) {
                 this.$root.$emit('SHOW_POSITION_DRAWER', {
-                    data: { ...this.form, akey: this.akey, name: this.info.name } || {},
+                    data: { ...this.form, akey: this.akey, name: this.info.name, ...this.apiAmount } || {},
                     taskStatus: this.taskStatus
                 })
             } else {
@@ -212,7 +213,7 @@ export default {
                         // 弹出充值 弹窗
                         const timer = setTimeout(() => {
                             clearTimeout(timer)
-                            this.$router.push({ name: 'My', query: { ob: true } })
+                            this.$router.push({ name: 'WalletDetail' })
                         }, 1000)
                     } else {
                         this.$rotuer.push({ name: 'Login' })
@@ -239,6 +240,23 @@ export default {
                 if (res.code === 0) {
                     this.visible = false
                     this.$message.success('购买成功')
+                }
+            })
+        },
+        getBalance() {
+            this.$axios({
+                url: '/api/exchange/balance',
+                params: {
+                    exchange: this.info.exchange,
+                    symbol1: 'eth',
+                    symbol2: 'btc'
+                }
+            }).then(res => {
+                if (res && res.code === 0) {
+                    this.apiAmount = res.data || {}
+                    this.$root.$emit('UPDATE_POSITION_DATA', {
+                        data: { ...this.form, akey: this.akey, name: this.info.name, ...this.apiAmount } || {},
+                    })
                 }
             })
         }

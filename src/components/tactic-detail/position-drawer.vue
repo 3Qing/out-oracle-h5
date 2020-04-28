@@ -5,21 +5,36 @@
         @close="close"
         :visible="visible">
         <div :class="[taskStatus === 0 ? 'top-tip' : 'top-tip-api ellipsis']" @click="toPage">
-            {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.name}：${data.akey}`}}
+            {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.akey}`}}
         </div>
         <div class="clearfix header">
-            <span :class="[!isPreview && 'o-link', 'fl']" @click="isPreview = false">参数设置</span>
-            <span :class="[isPreview && 'o-link', 'fl']" @click="isPreview = true">策略预览</span>
-            <span class="fr" @click="handleClick">AI自动填充</span>
+            <span class="fl">参数设置</span>
+            <!-- <span :class="[isPreview && 'o-link', 'fl']" @click="isPreview = true">策略预览</span> -->
+            <!-- <span class="fr" @click="handleClick">AI自动填充</span> -->
         </div>
         <div class="trans-amount" v-show="!isPreview">
-            <div class="amount-item clearfix">
+            <!-- <div class="amount-item clearfix">
                 <span>投入总量：<a-input-number v-model="form.fund1" :min="0" :max="100"></a-input-number></span>
                 <a-input class="fr" v-model="form.symbol1"></a-input>
             </div>
             <div class="amount-item clearfix">
                 <span>投入总量：<a-input-number v-model="form.fund2" :min="0" :max="100"></a-input-number></span>
                 <a-input class="fr" v-model="form.symbol2"></a-input>
+            </div> -->
+            <div class="amount-top">
+                <div class="amount-content">
+                    <div class="left">
+                        您持有ETH：<br>{{Number(data.eth || 0).toFixed(6)}}
+                    </div>
+                    <div class="right">
+                        您持有BTC：<br>{{Number(data.btc || 0).toFixed(6)}}&#8776;{{btnPrice}}ETH
+                    </div>
+                </div>
+                <div class="progress-wrapper">
+                    <p :class="[!leftRatio && 'empty', 'left text-center']" :style="leftStyle">{{`${(leftRatio || 0).toFixed(2)}%`}}</p>
+                    <p :class="[!rightRatio && 'empty', 'right text-center']" :style="rightStyle">{{`${(rightRatio || 0).toFixed(2)}%`}}</p>
+                </div>
+                <p class="amount-tip text-center">建议持仓比例范围：30%~70%<span>计量单位统一为：ETH</span></p>
             </div>
             <div class="amount-item clearfix">
                 <span>价格间距：</span>
@@ -30,7 +45,7 @@
                 <span class="fr"><a-input-number v-model="form.ratio"></a-input-number>%</span>
             </div>
         </div>
-        <div class="trans-amount" v-show="isPreview">
+        <!-- <div class="trans-amount" v-show="isPreview">
             <div class="amount-item clearfix">
                 <span>投入总量：</span>
                 <span class="fr">{{form.fund1}} {{form.symbol1}}</span>
@@ -47,7 +62,7 @@
                 <span>每笔交易占比：</span>
                 <span class="fr">{{form.ratio}}%</span>
             </div>
-        </div>
+        </div> -->
         <div class="tip-wrapper">
             <p class="tip">温馨提示:</p>
             <p>交易进行中，请勿手动操作API</p>
@@ -97,10 +112,41 @@ export default {
             this.taskStatus = taskStatus
             this.visible = true
         })
+        this.$root.$on('UPDATE_POSITION_DATA', ({ data = {} }) => {
+            this.data = { ...data }
+        })
     },
     computed: {
         btnText() {
             return this.taskStatus === 0 ? '添加任务' : this.taskStatus === 1 ? '开始任务' : '结束任务'
+        },
+        btnPrice() {
+            return (Number(this.data.btc) / Number(this.data.price)) ? (Number(this.data.btc) / Number(this.data.price)).toFixed(6) : 0
+        },
+        total() {
+            return Number(this.data.eth) + Number(this.btnPrice)
+        },
+        leftRatio() {
+            return this.data.eth / this.total * 100
+        },
+        rightRatio() {
+            return Number(this.btnPrice) / this.total * 100
+        },
+        leftStyle() {
+            if (!this.leftRatio && !this.rightRatio) {
+                return  { width: '50%' }
+            } else if (!this.leftRatio && this.rightRatio) {
+                return { width: `${100 - this.rightRatio}%` }
+            }
+            return { width: `${this.leftRatio}%` }
+        },
+        rightStyle() {
+            if (!this.leftRatio && !this.rightRatio) {
+                return  { width: '50%' }
+            } else if (this.rightRatio && !this.leftRatio) {
+                return { width: `${100 - this.leftRatio}%` }
+            }
+            return { width: `${this.rightRatio}%` }
         }
     },
     methods: {
@@ -170,7 +216,6 @@ export default {
                     vm: this
                 }
             }).then(res => {
-                console.log(res)
                 if (res.code === 0) {
                     this.$message.success('添加成功')
                 }
@@ -229,6 +274,41 @@ export default {
         }
         .trans-amount {
             color: #333;
+            .amount-top {
+                .amount-content {
+                    display: flex;
+                    div {
+                        width: 50%;
+                        text-align: center;
+                    }
+                }
+                .progress-wrapper {
+                    display: flex;
+                    position: relative;
+                    height: .4rem;
+                    line-height: .4rem;
+                    margin: .2rem 0;
+                    p {
+                        color: #fff;
+                        &.left {
+                            background-color: #52c41a;
+                        }
+                        &.right {
+                            background-color: #db3934;
+                        }
+                        &.empty {
+                            color: #666;
+                            background-color: #f8f8f8;
+                        }
+                    }
+                }
+                .amount-tip {
+                    font-size: .2rem;
+                    span {
+                        margin-left: .4rem;
+                    }
+                }
+            }
             .amount-item {
                 height: .8rem;
                 line-height: .8rem;
