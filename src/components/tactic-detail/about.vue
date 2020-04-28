@@ -3,11 +3,7 @@
         <p class="wrapper-title">流程说明</p>
         <div class="list-item">
             <i></i>
-            <div class="item-content">
-                <!-- <p class="item-title">开启量化</p>
-                <p class="item-textt">在量化交易策略列表中，您可以根据您的实际情况选择合适的策略和仓位完成量化配置。</p> -->
-                {{data.procedure}}
-            </div>
+            <div class="item-content" v-html="data.procedure"></div>
         </div>
     </div>
 </template>

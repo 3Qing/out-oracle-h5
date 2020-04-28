@@ -12,7 +12,7 @@
                 <div class="tr" v-for="(item, i) in listData" :key="i">
                     <span>{{item.name || item.task_id}}</span>
                     <span class="text-center">{{item.created_at}}</span>
-                    <span class="text-right">{{item.action}}</span>
+                    <span :class="[item.action === '开始任务' ? 'start' : 'stop', 'text-right']">{{item.action}}</span>
                 </div>
             </div>
         </div>
@@ -72,6 +72,12 @@ export default {
             border-bottom: 1px solid #f8f8f8 !important;
             span:nth-child(2) {
                 width: 40% !important;
+            }
+            .start {
+                color: #45BE87;
+            }
+            .stop {
+                color: rgba(255, 77, 79, 0.8);
             }
         }
     }

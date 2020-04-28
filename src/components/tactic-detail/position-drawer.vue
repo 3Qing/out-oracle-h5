@@ -4,8 +4,8 @@
         placement="bottom"
         @close="close"
         :visible="visible">
-        <div :class="[taskStatus === 0 ? 'top-tip' : 'top-tip-api ellipsis']" @click="toPage">
-            {{taskStatus === 0 ? '开启自动交易前，请先绑定火币API' : `${data.akey}`}}
+        <div :class="[!data.akey ? 'top-tip' : 'top-tip-api ellipsis']" @click="toPage">
+            {{!data.akey ? '开启自动交易前，请先绑定火币API' : `${data.akey}`}}
         </div>
         <div class="clearfix header">
             <span class="fl">参数设置</span>
@@ -21,6 +21,7 @@
                 <span>投入总量：<a-input-number v-model="form.fund2" :min="0" :max="100"></a-input-number></span>
                 <a-input class="fr" v-model="form.symbol2"></a-input>
             </div> -->
+            <div class="cover" v-if="!data.akey"></div>
             <div class="amount-top">
                 <div class="amount-content">
                     <div class="left">
@@ -104,9 +105,9 @@ export default {
                     symbol2: this.data.symbol_2 || '',
                     fund1: this.data.fund_1 || 0,
                     fund2: this.data.fund_2 || 0,
-                    per1: this.data.per_1 || 0,
+                    per1: Number(this.data.per_1 || 0) * 100,
                     per2: this.data.per_1 || 0,
-                    ratio: this.data.ratio || '0',
+                    ratio: Number(this.data.ratio || 0) * 100,
                 }
             }
             this.taskStatus = taskStatus
@@ -273,7 +274,17 @@ export default {
             }
         }
         .trans-amount {
+            position: relative;
             color: #333;
+            .cover {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                z-index: 9;
+                background-color: rgba(255, 255, 255, .8);
+            }
             .amount-top {
                 .amount-content {
                     display: flex;

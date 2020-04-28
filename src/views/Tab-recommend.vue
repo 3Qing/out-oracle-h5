@@ -64,8 +64,10 @@
             @ok="handleOk"
             title="提现申请"
             wrapClassName="balance-modal">
-            <p>总奖励：{{total}} ETH</p>
-            <a-input-number class="mt-10" placeholder="提现金额" :max="total" v-model="amount"></a-input-number>
+            <p>总奖励：{{info.balance}} ETH</p>
+            <!-- <p class="o-link mt-10">{{info.wallet}}</p> -->
+            <a-input-number class="mt-10" placeholder="提现金额" :max="Number(info.balance)" v-model="amount"></a-input-number>
+            <a-input class="mt-10" placeholder="钱包地址" v-model="wallet"></a-input>
         </a-modal>
     </div>
 </template>
@@ -96,6 +98,7 @@ export default {
             qrcode: null,
             show: false,
             amount: 0,
+            wallet: '',
             total: 0
         }
     },
@@ -152,7 +155,7 @@ export default {
                     data.forEach(item => {
                         total += Number(item.amount)
                     })
-                    this.total = Number(total.toFixed(2))
+                    this.total = Number(total).toFixed(2)
                     this.$store.dispatch({
                         type: CHANGE_RECOMDATA,
                         field: 'total',
@@ -197,7 +200,8 @@ export default {
                 method: 'POST',
                 url: '/api/withdraw/add',
                 params: {
-                    amount: this.amount || 0
+                    amount: this.amount || 0,
+                    wallet: this.wallet
                 }
             }).then(res => {
                 if (res.code === 0) {
@@ -317,11 +321,21 @@ export default {
         }
         .reward-wrapper {
             display: flex;
+            margin-top: .2rem;
             align-items: flex-end;
             justify-content: space-between;
             li {
-                width: 25%;
+                &:nth-child(1) {
+                    width: 30%;
+                }
+                &:nth-child(2) {
+                    width: 30%;
+                }
+                &:nth-child(3) {
+                    width: 20%;
+                }
                 .money {
+                    font-size: .38rem;
                     color: #333;
                 }
                 .money-desc {

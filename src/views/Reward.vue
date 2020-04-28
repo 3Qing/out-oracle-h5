@@ -12,11 +12,13 @@
             <div class="item-wrapper">
                 <div class="th">
                     <span>日期时间</span>
+                    <span>奖励比例</span>
                     <span>金额</span>
                 </div>
                 <p class="no-data" v-if="!listData.length">暂无数据</p>
                 <div class="tr"  v-for="item in listData" :key="item.id">
                     <span>{{item.created_at || '-'}}</span>
+                    <span>{{item.per || 0}}</span>
                     <span>{{Number(item.amount).toFixed(6) || 0}}</span>
                 </div>
             </div>
@@ -81,7 +83,10 @@ export default {
         line-height: .7rem;
         border-bottom: 1px solid #f8f8f8;
         span {
-            width: 50% !important;
+            width: 30% !important;
+            &:nth-child(1) {
+                width: 40% !important;
+            }
             &:nth-child(2) {
                 text-align: right;
             }

@@ -28,7 +28,6 @@ export default {
             default: '收益总览'
         },
         value: {
-            type: Number,
             default: 0
         },
         unit: {

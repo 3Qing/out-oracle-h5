@@ -27,7 +27,7 @@
         <div class="tabs-wrapper mt-10">
             <a-tabs :defaultActiveKey="tabName" @change="changeTab">
                 <a-tab-pane tab="策略介绍" key="1">
-                    <intro-box :data="info" @show="showDrawer"></intro-box>
+                    <intro-box :data="info"></intro-box>
                 </a-tab-pane>
                 <a-tab-pane tab="性能分析" key="2">
                     <analysis-box :data="info"></analysis-box>
@@ -36,6 +36,9 @@
                     <about-box :data="info"></about-box>
                 </a-tab-pane>
             </a-tabs>
+        </div>
+        <div class="bottom" v-if="info.status">
+            <a-button type="primary" @click="showDrawer">开启合约量化</a-button>
         </div>
         <position-drawer></position-drawer>
         <a-modal
@@ -158,6 +161,7 @@ export default {
                 if (res.code === 0) {
                     const data = res.data || {}
                     this.akey = data.access_key || ''
+                    this.updateHandler()
                 }
             })
         },
@@ -173,6 +177,7 @@ export default {
             }).then(res => {
                 if (res.code === 0) {
                     this.form = res.data || {}
+                    this.updateHandler()
                 }
             })
         },
@@ -185,6 +190,7 @@ export default {
             }).then(res => {
                 if (res.code === 0) {
                     this.taskStatus = 1
+                    this.updateHandler()
                 }
             })
         },
@@ -240,6 +246,7 @@ export default {
                 if (res.code === 0) {
                     this.visible = false
                     this.$message.success('购买成功')
+                    this.getAllData()
                 }
             })
         },
@@ -254,10 +261,14 @@ export default {
             }).then(res => {
                 if (res && res.code === 0) {
                     this.apiAmount = res.data || {}
-                    this.$root.$emit('UPDATE_POSITION_DATA', {
-                        data: { ...this.form, akey: this.akey, name: this.info.name, ...this.apiAmount } || {},
-                    })
+                    this.updateHandler()
                 }
+            })
+        },
+        updateHandler() {
+            this.$root.$emit('UPDATE_POSITION_DATA', {
+                data: { ...this.form, akey: this.akey, name: this.info.name, ...this.apiAmount } || {},
+                taskStatus: this.taskStatus
             })
         }
     }
@@ -370,7 +381,7 @@ export default {
         bottom: 0;
         z-index: 9;
         width: 100%;
-        padding: .2rem .3rem .3rem;
+        padding: .2rem .4rem !important;
         background-color: #fff;
         button {
             width: 100%;
