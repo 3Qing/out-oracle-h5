@@ -7,7 +7,7 @@
             <div class="user-wrapper">
                 <div class="top">
                     <span class="account">{{formatPhone(info.phone) || '手机号'}}</span>
-                    <span class="community">Lv{{Number(info.level) || 1}}</span>
+                    <span class="community">VP{{Number(info.level) || 1}}</span>
                 </div>
                 <div class="uid">
                     <p>UID:{{info.id || '-'}}</p>

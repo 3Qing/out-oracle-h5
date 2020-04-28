@@ -18,7 +18,7 @@
                 <p class="no-data" v-if="!listData.length">暂无数据</p>
                 <div class="tr"  v-for="item in listData" :key="item.id">
                     <span>{{item.created_at || '-'}}</span>
-                    <span>{{item.per || 0}}</span>
+                    <span>{{item.per || 0}}%</span>
                     <span>{{Number(item.amount).toFixed(6) || 0}}</span>
                 </div>
             </div>

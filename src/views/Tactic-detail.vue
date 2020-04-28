@@ -40,7 +40,7 @@
         <div class="bottom" v-if="info.status">
             <a-button type="primary" @click="showDrawer">开启合约量化</a-button>
         </div>
-        <position-drawer></position-drawer>
+        <position-drawer @update="updateData"></position-drawer>
         <a-modal
             width="80%"
             v-model="visible"
@@ -138,9 +138,12 @@ export default {
                     }
                     if (res2.code === 0) {
                         this.info = res2.data || {}
+                        this.form = {
+                            symbol_1: this.info.symbol_1,
+                            symbol_2: this.info.symbol_2
+                        }
                         if (this.info.exchange) {
                             this.getTaskDetail()
-                            this.getTaskStatus()
                             this.getApi()
                             this.getBalance()
                         }
@@ -170,28 +173,33 @@ export default {
                 url: '/api/task/detail',
                 params: {
                     exchange: this.info.exchange
-                },
-                custom: {
-                    vm: this
                 }
             }).then(res => {
                 if (res.code === 0) {
-                    this.form = res.data || {}
+                    const data = res.data || {}
+                    this.form = Object.assign(this.form, data)
                     this.updateHandler()
+                    this.getTaskStatus()
+                } else {
+                    this.taskStatus = -1
                 }
             })
         },
         getTaskStatus() {
             this.$axios({
                 url: '/api/task/status',
-                custom: {
-                    vm: this
+                params: {
+                    task: this.form.id
                 }
             }).then(res => {
                 if (res.code === 0) {
-                    this.taskStatus = 1
-                    this.updateHandler()
+                    if (res.data) {
+                        this.taskStatus = res.data.status
+                    }
+                } else {
+                    this.taskStatus = -1
                 }
+                this.updateHandler()
             })
         },
         formatTag() {
@@ -270,6 +278,9 @@ export default {
                 data: { ...this.form, akey: this.akey, name: this.info.name, ...this.apiAmount } || {},
                 taskStatus: this.taskStatus
             })
+        },
+        updateData() {
+            this.getAllData()
         }
     }
 }

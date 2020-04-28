@@ -69,7 +69,11 @@
             <p>交易进行中，请勿手动操作API</p>
         </div>
         <div class="btn-wrapper">
-            <a-button type="primary" :disabled="taskStatus === 0" @click="beforeSubmit">{{btnText}}</a-button>
+            <a-button
+                type="primary"
+                :disabled="!data.akey"
+                :class="[taskStatus === 0 && 'btn-start', taskStatus === 1 && 'btn-stop']"
+                @click="beforeSubmit">{{btnText}}</a-button>
         </div>
     </a-drawer>
 </template>
@@ -98,28 +102,16 @@ export default {
     mounted() {
         this.$root.$off('SHOW_POSITION_DRAWER')
         this.$root.$on('SHOW_POSITION_DRAWER', ({ data = {}, taskStatus = 0 }) => {
-            this.data = { ...data }
-            if (Object.keys(data).length) {
-                this.form = {
-                    symbol1: this.data.symbol_1 || '',
-                    symbol2: this.data.symbol_2 || '',
-                    fund1: this.data.fund_1 || 0,
-                    fund2: this.data.fund_2 || 0,
-                    per1: Number(this.data.per_1 || 0) * 100,
-                    per2: this.data.per_1 || 0,
-                    ratio: Number(this.data.ratio || 0) * 100,
-                }
-            }
-            this.taskStatus = taskStatus
+            this.formatData({ data, taskStatus })
             this.visible = true
         })
-        this.$root.$on('UPDATE_POSITION_DATA', ({ data = {} }) => {
-            this.data = { ...data }
+        this.$root.$on('UPDATE_POSITION_DATA', ({ data = {}, taskStatus = 0 }) => {
+            this.formatData({ data, taskStatus })
         })
     },
     computed: {
         btnText() {
-            return this.taskStatus === 0 ? '添加任务' : this.taskStatus === 1 ? '开始任务' : '结束任务'
+            return this.taskStatus === -1 ? '添加任务' : this.taskStatus === 0 ? '开始任务' : '结束任务'
         },
         btnPrice() {
             return (Number(this.data.btc) / Number(this.data.price)) ? (Number(this.data.btc) / Number(this.data.price)).toFixed(6) : 0
@@ -151,11 +143,26 @@ export default {
         }
     },
     methods: {
+        formatData({ data = {}, taskStatus = 0 }) {
+            this.data = { ...data }
+            if (Object.keys(data).length) {
+                this.form = {
+                    symbol1: this.data.symbol_1 || 'eth',
+                    symbol2: this.data.symbol_2 || 'btc',
+                    fund1: this.data.fund_1 || 100,
+                    fund2: this.data.fund_2 || 100,
+                    per1: (Number(this.data.buy || 0) * 100) || 0.002,
+                    per2: (Number(this.data.sell || 0) * 100) || 0.002,
+                    ratio: (Number(this.data.ratio || 0) * 100) || 0.1
+                }
+            }
+            this.taskStatus = taskStatus
+        },
         close() {
             this.visible = false
         },
         toPage() {
-            if (this.taskStatus === 0) {
+            if (!this.data.akey) {
                 this.$router.push({ name: 'ApiManager' })
             } else {
                 this.$router.push({ name: 'ApiImport', params: { id: this.data.exchange } })
@@ -175,8 +182,9 @@ export default {
             }
         },
         startOrStopTask() {
+            const api = this.taskStatus === 0 ? 'start' : 'stop'
             this.$axios({
-                url: `/api/task/${this.taskStatus === 1 ? 'start' : 'stop'}`,
+                url: `/api/task/${api}`,
                 params: {
                     task: this.data.id
                 },
@@ -185,16 +193,21 @@ export default {
                 }
             }).then(res => {
                 if (res.code === 0) {
-                    this.$message.success(`已${this.btnText}`)
+                    if (api === 'start') {
+                        this.$message.success('任务已完成')
+                    } else {
+                        this.$message.success('任务已停止')
+                    }
+                    this.$emit('update')
                 }
             })
         },
         beforeSubmit() {
             const params = Object.assign({
-                api: this.$route.params.id,
-                exchange: 1,
+                api: this.data.api,
+                exchange: this.$route.params.id,
             }, this.form)
-            if (this.taskStatus === 0) {
+            if (this.taskStatus === -1) {
                 this.submit(params)
             } else {
                 modal.confirm({
@@ -212,13 +225,11 @@ export default {
             this.$axios({
                 method: 'POST',
                 url: '/api/task/add',
-                params,
-                custom: {
-                    vm: this
-                }
+                params
             }).then(res => {
                 if (res.code === 0) {
                     this.$message.success('添加成功')
+                    this.$emit('update')
                 }
             })
         }
@@ -365,6 +376,11 @@ export default {
                 border-radius: 0;
                 background: #19458e;
                 border-color: #19458e;
+            }
+            .btn-stop {
+                color: #fff !important;
+                border-color: #db3934 !important;
+                background-color: #db3934 !important;
             }
         }
     }

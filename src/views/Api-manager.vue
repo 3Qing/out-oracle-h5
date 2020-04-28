@@ -66,7 +66,10 @@ export default {
         },
         getListData() {
             this.$axios({
-                url: '/api/exchange/list'
+                url: '/api/exchange/list',
+                custom: {
+                    vm: this
+                }
             }).then(res => {
                 if (res.code === 0) {
                     const data = res.data || []

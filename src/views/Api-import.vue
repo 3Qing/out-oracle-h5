@@ -76,18 +76,17 @@ export default {
                 url: item,
                 params: {
                     exchange: this.$route.params.id
-                },
-                custom: {
-                    vm: this
                 }
             }))
+            this.loading = true
+            this.tip = '获取中...'
             Promise.all(params).then(res => {
-                console.log(res)
                 let info = {}
-                this.edit = true
-                res.forEach(item => {
+                this.loading = false
+                res.forEach((item) => {
                     if (item) {
                         if (item.code === 0) {
+                            this.edit = true
                             const data = item.data || {}
                             const form = {}
                             if (data.access_key || data.secret_key) {
@@ -100,7 +99,6 @@ export default {
                     }
                 })
                 this.info = { ...info }
-                console.log(this.info)
             })
         },
         getData() {
